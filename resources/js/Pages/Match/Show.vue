@@ -21,6 +21,11 @@ function changeMechanic(value) {
 
 // ─── Match Up ────────────────────────────────────────────────────────────────
 
+function imgSrc(path) {
+    if (!path) return null;
+    return path.startsWith('http') ? path : `/storage/${path}`;
+}
+
 function shuffle(arr) {
     const a = [...arr];
     for (let i = a.length - 1; i > 0; i--) {
@@ -327,7 +332,7 @@ const tfRating = computed(() => {
                                 :class="leftItemClass(item.pairId)"
                                 @click="selectLeft(item.pairId)"
                             >
-                                <img v-if="item.image" :src="`/storage/${item.image}`" class="absolute inset-0 h-full w-full object-cover" />
+                                <img v-if="item.image" :src="imgSrc(item.image)" class="absolute inset-0 h-full w-full object-cover" />
                                 <div
                                     class="absolute inset-x-0 bottom-0 flex items-end justify-center px-2 pb-1.5 pt-4"
                                     :class="item.image ? 'bg-gradient-to-t from-black/60 to-transparent' : 'inset-0 items-center justify-center'"
@@ -352,7 +357,7 @@ const tfRating = computed(() => {
                                 :class="rightItemClass(item.pairId)"
                                 @click="selectRight(item.pairId)"
                             >
-                                <img v-if="item.image" :src="`/storage/${item.image}`" class="absolute inset-0 h-full w-full object-cover" />
+                                <img v-if="item.image" :src="imgSrc(item.image)" class="absolute inset-0 h-full w-full object-cover" />
                                 <div
                                     class="absolute inset-x-0 bottom-0 flex items-end justify-center px-2 pb-1.5 pt-4"
                                     :class="item.image ? 'bg-gradient-to-t from-black/60 to-transparent' : 'inset-0 items-center justify-center'"
@@ -445,7 +450,7 @@ const tfRating = computed(() => {
                                 <!-- Image fills the card -->
                                 <img
                                     v-if="card.image"
-                                    :src="`/storage/${card.image}`"
+                                    :src="imgSrc(card.image)"
                                     class="h-full w-full object-cover"
                                 />
                                 <!-- Text overlay (with gradient if image present) -->
@@ -516,7 +521,7 @@ const tfRating = computed(() => {
                         <!-- Item A -->
                         <div class="overflow-hidden rounded-2xl bg-white shadow-sm">
                             <div v-if="tfCard.itemAImage" class="aspect-square">
-                                <img :src="`/storage/${tfCard.itemAImage}`" class="h-full w-full object-cover" />
+                                <img :src="imgSrc(tfCard.itemAImage)" class="h-full w-full object-cover" />
                             </div>
                             <div class="p-4 text-center text-base font-semibold text-gray-800">
                                 {{ tfCard.itemA }}
@@ -528,7 +533,7 @@ const tfRating = computed(() => {
                             :class="!tfConfirmed ? 'bg-white' : tfAnswers.at(-1).correct === tfCard.isCorrect && tfCard.isCorrect ? 'bg-green-50 ring-2 ring-green-400' : !tfCard.isCorrect ? 'bg-red-50 ring-2 ring-red-400' : 'bg-white'"
                         >
                             <div v-if="tfCard.itemBImage" class="aspect-square">
-                                <img :src="`/storage/${tfCard.itemBImage}`" class="h-full w-full object-cover" />
+                                <img :src="imgSrc(tfCard.itemBImage)" class="h-full w-full object-cover" />
                             </div>
                             <div class="p-4 text-center text-base font-semibold text-gray-800">
                                 {{ tfCard.itemB }}

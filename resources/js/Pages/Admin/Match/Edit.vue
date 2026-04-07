@@ -50,22 +50,24 @@ const pairs = ref(
         id: p.id,
         item_a: p.item_a ?? '',
         item_a_image: p.item_a_image ?? null,
-        item_a_image_url: p.item_a_image ? `/storage/${p.item_a_image}` : null,
+        item_a_image_url: resolveUrl(p.item_a_image),
         item_a_image_size: null,
         item_a_uploading: false,
+        item_a_url_input: '',
         item_b: p.item_b ?? '',
         item_b_image: p.item_b_image ?? null,
-        item_b_image_url: p.item_b_image ? `/storage/${p.item_b_image}` : null,
+        item_b_image_url: resolveUrl(p.item_b_image),
         item_b_image_size: null,
         item_b_uploading: false,
+        item_b_url_input: '',
     }))
 );
 
 function addPair() {
     pairs.value.push({
         id: null,
-        item_a: '', item_a_image: null, item_a_image_url: null, item_a_image_size: null, item_a_uploading: false,
-        item_b: '', item_b_image: null, item_b_image_url: null, item_b_image_size: null, item_b_uploading: false,
+        item_a: '', item_a_image: null, item_a_image_url: null, item_a_image_size: null, item_a_uploading: false, item_a_url_input: '',
+        item_b: '', item_b_image: null, item_b_image_url: null, item_b_image_size: null, item_b_uploading: false, item_b_url_input: '',
     });
 }
 
@@ -103,11 +105,27 @@ async function onImageChange(pIndex, side, event) {
     }
 }
 
+function resolveUrl(path) {
+    if (!path) return null;
+    return path.startsWith('http') ? path : `/storage/${path}`;
+}
+
 function removeImage(pIndex, side) {
     const p = pairs.value[pIndex];
     p[`item_${side}_image`]      = null;
     p[`item_${side}_image_url`]  = null;
     p[`item_${side}_image_size`] = null;
+    p[`item_${side}_url_input`]  = '';
+}
+
+function setImageFromUrl(pIndex, side) {
+    const p = pairs.value[pIndex];
+    const url = p[`item_${side}_url_input`].trim();
+    if (!url) return;
+    p[`item_${side}_image`]      = url;
+    p[`item_${side}_image_url`]  = url;
+    p[`item_${side}_image_size`] = null;
+    p[`item_${side}_url_input`]  = '';
 }
 
 function formatSize(bytes) {
@@ -316,14 +334,18 @@ function save() {
                             <Button icon="pi pi-times" label="Удалить" severity="danger" text size="small" @click="removeImage(pIndex, 'a')" />
                         </div>
                     </div>
-                    <div v-else>
+                    <div v-else class="flex flex-col gap-1.5">
                         <label
                             :for="`img_a_${pIndex}`"
                             class="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-dashed border-gray-300 bg-gray-50 px-3 py-1.5 text-xs text-gray-500 transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600"
                         >
-                            <i class="pi pi-image text-xs" /> Картинка
+                            <i class="pi pi-image text-xs" /> Файл
                         </label>
                         <input :id="`img_a_${pIndex}`" type="file" accept="image/*" class="hidden" @change="onImageChange(pIndex, 'a', $event)" />
+                        <div class="flex items-center gap-1">
+                            <InputText v-model="pair.item_a_url_input" placeholder="URL картинки..." class="flex-1 text-xs" @keydown.enter="setImageFromUrl(pIndex, 'a')" />
+                            <Button icon="pi pi-check" size="small" severity="secondary" :disabled="!pair.item_a_url_input.trim()" @click="setImageFromUrl(pIndex, 'a')" />
+                        </div>
                     </div>
                 </div>
 
@@ -351,14 +373,18 @@ function save() {
                             <Button icon="pi pi-times" label="Удалить" severity="danger" text size="small" @click="removeImage(pIndex, 'b')" />
                         </div>
                     </div>
-                    <div v-else>
+                    <div v-else class="flex flex-col gap-1.5">
                         <label
                             :for="`img_b_${pIndex}`"
                             class="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-dashed border-gray-300 bg-gray-50 px-3 py-1.5 text-xs text-gray-500 transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600"
                         >
-                            <i class="pi pi-image text-xs" /> Картинка
+                            <i class="pi pi-image text-xs" /> Файл
                         </label>
                         <input :id="`img_b_${pIndex}`" type="file" accept="image/*" class="hidden" @change="onImageChange(pIndex, 'b', $event)" />
+                        <div class="flex items-center gap-1">
+                            <InputText v-model="pair.item_b_url_input" placeholder="URL картинки..." class="flex-1 text-xs" @keydown.enter="setImageFromUrl(pIndex, 'b')" />
+                            <Button icon="pi pi-check" size="small" severity="secondary" :disabled="!pair.item_b_url_input.trim()" @click="setImageFromUrl(pIndex, 'b')" />
+                        </div>
                     </div>
                 </div>
 

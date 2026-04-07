@@ -9,35 +9,63 @@ const props = defineProps({
     quiz: Object,
 });
 
-const questions = props.quiz.questions;
+function imgSrc(path) {
+    if (!path) return null;
+    return path.startsWith('http') ? path : `/storage/${path}`;
+}
+
+function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+const questions = props.quiz.questions.map(q => ({
+    ...q,
+    answers: shuffle(q.answers),
+}));
 const total = questions.length;
 
 // State
 const step = ref('quiz'); // 'quiz' | 'result'
 const current = ref(0);
-const selected = ref(null);   // index of chosen answer
-const confirmed = ref(false); // answer locked in
-const answers = ref([]);      // { questionIndex, answerId, correct }
+const selected = ref(new Set()); // Set of selected answer indices
+const confirmed = ref(false);
+const answers = ref([]);         // { correct: bool }
 const actionBtn = ref(null);
 
 const question = computed(() => questions[current.value]);
 const progress = computed(() => Math.round((current.value / total) * 100));
 const score = computed(() => answers.value.filter(a => a.correct).length);
+const isMulti = computed(() => question.value.answers.filter(a => a.is_correct).length > 1);
 
 function choose(aIndex) {
     if (confirmed.value) return;
-    selected.value = aIndex;
+    const s = new Set(selected.value);
+    if (s.has(aIndex)) {
+        s.delete(aIndex);
+    } else {
+        if (!isMulti.value) s.clear();
+        s.add(aIndex);
+    }
+    selected.value = s;
 }
 
 function confirm() {
-    if (selected.value === null) return;
+    if (selected.value.size === 0) return;
     confirmed.value = true;
-    const answer = question.value.answers[selected.value];
-    answers.value.push({
-        questionIndex: current.value,
-        answerId: answer.id,
-        correct: answer.is_correct,
-    });
+
+    const correctIndices = new Set(
+        question.value.answers.map((a, i) => a.is_correct ? i : null).filter(i => i !== null)
+    );
+    const isCorrect =
+        selected.value.size === correctIndices.size &&
+        [...selected.value].every(i => correctIndices.has(i));
+
+    answers.value.push({ correct: isCorrect });
 
     if (current.value === total - 1) {
         setTimeout(() => { step.value = 'result'; }, 1000);
@@ -54,7 +82,7 @@ function confirm() {
 function next() {
     if (current.value < total - 1) {
         current.value++;
-        selected.value = null;
+        selected.value = new Set();
         confirmed.value = false;
     } else {
         step.value = 'result';
@@ -63,7 +91,7 @@ function next() {
 
 function restart() {
     current.value = 0;
-    selected.value = null;
+    selected.value = new Set();
     confirmed.value = false;
     answers.value = [];
     step.value = 'quiz';
@@ -71,15 +99,24 @@ function restart() {
 
 function answerClass(aIndex) {
     const answer = question.value.answers[aIndex];
+    const isSelected = selected.value.has(aIndex);
     if (!confirmed.value) {
-        return selected.value === aIndex
+        return isSelected
             ? 'border-blue-500 bg-blue-50 text-blue-800'
             : 'border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50';
     }
     if (answer.is_correct) return 'border-green-500 bg-green-50 text-green-800';
-    if (selected.value === aIndex) return 'border-red-400 bg-red-50 text-red-700';
+    if (isSelected && !answer.is_correct) return 'border-red-400 bg-red-50 text-red-700';
     return 'border-gray-200 bg-white opacity-50';
 }
+
+const feedbackText = computed(() => {
+    if (!confirmed.value) return '';
+    if (answers.value.at(-1).correct) return 'Правильно!';
+    const selectedTexts = question.value.answers.filter((_, i) => selected.value.has(i)).map(a => a.text).join(', ');
+    const correctTexts = question.value.answers.filter(a => a.is_correct).map(a => a.text).join(', ');
+    return `Неверно. Вы выбрали: ${selectedTexts || '—'}\nПравильный ответ: ${correctTexts}`;
+});
 
 const scoreLabel = computed(() => {
     const pct = score.value / total;
@@ -131,7 +168,7 @@ const scoreLabel = computed(() => {
                     <!-- Image -->
                     <div v-if="question.image" class="mb-5">
                         <img
-                            :src="`/storage/${question.image}`"
+                            :src="imgSrc(question.image)"
                             class="w-full rounded-2xl object-cover"
                             style="max-height: 260px"
                         />
@@ -140,6 +177,11 @@ const scoreLabel = computed(() => {
                     <!-- Text -->
                     <p v-if="question.question_text" class="mb-6 text-lg font-semibold leading-snug text-gray-800">
                         {{ question.question_text }}
+                    </p>
+
+                    <!-- Multi-select hint -->
+                    <p v-if="isMulti && !confirmed" class="mb-3 text-xs text-blue-500">
+                        Выберите все правильные варианты
                     </p>
 
                     <!-- Answers -->
@@ -152,18 +194,18 @@ const scoreLabel = computed(() => {
                             :class="answerClass(aIndex)"
                         >
                             <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-500">
-                                {{ ['A', 'B', 'C', 'D'][aIndex] }}
+                                {{ aIndex + 1 }}
                             </span>
                             <span>{{ answer.text }}</span>
                             <span v-if="confirmed && answer.is_correct" class="ml-auto text-green-500">✓</span>
-                            <span v-else-if="confirmed && selected === aIndex && !answer.is_correct" class="ml-auto text-red-400">✗</span>
+                            <span v-else-if="confirmed && selected.has(aIndex) && !answer.is_correct" class="ml-auto text-red-400">✗</span>
                         </button>
                     </div>
 
                     <!-- Feedback -->
-                    <div v-if="confirmed" class="mt-4 rounded-xl px-4 py-3 text-sm font-medium"
-                        :class="question.answers[selected].is_correct ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'">
-                        {{ question.answers[selected].is_correct ? 'Правильно!' : 'Неверно. Правильный ответ выделен зелёным.' }}
+                    <div v-if="confirmed" class="mt-4 whitespace-pre-line rounded-xl px-4 py-3 text-sm font-medium"
+                        :class="answers.at(-1).correct ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'">
+                        {{ feedbackText }}
                     </div>
                 </div>
 
@@ -172,7 +214,7 @@ const scoreLabel = computed(() => {
                     <button
                         v-if="!confirmed"
                         @click="confirm"
-                        :disabled="selected === null"
+                        :disabled="selected.size === 0"
                         class="w-full rounded-2xl bg-blue-500 py-4 text-base font-semibold text-white shadow transition hover:bg-blue-600 disabled:opacity-40"
                     >
                         Ответить
@@ -216,7 +258,7 @@ const scoreLabel = computed(() => {
                                     {{ q.question_text || `Вопрос ${i + 1}` }}
                                 </p>
                                 <p class="text-xs text-gray-400 mt-0.5">
-                                    Правильный: {{ q.answers.find(a => a.is_correct)?.text }}
+                                    Правильно: {{ q.answers.filter(a => a.is_correct).map(a => a.text).join(', ') }}
                                 </p>
                             </div>
                         </div>

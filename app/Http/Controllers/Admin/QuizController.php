@@ -56,7 +56,7 @@ class QuizController extends Controller
             'questions.*.question_text' => 'nullable|string',
             'questions.*.image' => 'nullable|image|max:2048',
             'questions.*.order' => 'integer',
-            'questions.*.answers' => 'array|size:4',
+            'questions.*.answers' => 'array|min:2',
             'questions.*.answers.*.text' => 'required|string|max:255',
             'questions.*.answers.*.is_correct' => 'boolean',
         ]);

@@ -45,15 +45,21 @@ function copyFallback() {
 }
 
 const isPublished = ref(props.quiz.is_published);
+function resolveUrl(path) {
+    if (!path) return null;
+    return path.startsWith('http') ? path : `/storage/${path}`;
+}
+
 const questions = ref(
     props.quiz.questions.map(q => ({
         id: q.id,
         question_text: q.question_text ?? '',
         image_path: q.image ?? null,
-        image_url: q.image ? `/storage/${q.image}` : null,
+        image_url: resolveUrl(q.image),
         image_size: null,
         image_uploading: false,
-        answers: q.answers.length === 4
+        image_url_input: '',
+        answers: q.answers.length > 0
             ? q.answers.map(a => ({ id: a.id, text: a.text, is_correct: a.is_correct }))
             : Array.from({ length: 4 }, () => ({ text: '', is_correct: false })),
     }))
@@ -67,7 +73,8 @@ function addQuestion() {
         image_url: null,
         image_size: null,
         image_uploading: false,
-        answers: Array.from({ length: 4 }, () => ({ text: '', is_correct: false })),
+        image_url_input: '',
+        answers: Array.from({ length: 2 }, () => ({ text: '', is_correct: false })),
     });
 }
 
@@ -75,10 +82,16 @@ function removeQuestion(index) {
     questions.value.splice(index, 1);
 }
 
-function setCorrect(qIndex, aIndex) {
-    questions.value[qIndex].answers.forEach((a, i) => {
-        a.is_correct = i === aIndex;
-    });
+function toggleCorrect(qIndex, aIndex) {
+    questions.value[qIndex].answers[aIndex].is_correct = !questions.value[qIndex].answers[aIndex].is_correct;
+}
+
+function addAnswer(qIndex) {
+    questions.value[qIndex].answers.push({ id: null, text: '', is_correct: false });
+}
+
+function removeAnswer(qIndex, aIndex) {
+    questions.value[qIndex].answers.splice(aIndex, 1);
 }
 
 async function onImageChange(qIndex, event) {
@@ -113,6 +126,17 @@ function removeImage(qIndex) {
     q.image_path = null;
     q.image_url = null;
     q.image_size = null;
+    q.image_url_input = '';
+}
+
+function setImageFromUrl(qIndex) {
+    const q = questions.value[qIndex];
+    const url = q.image_url_input.trim();
+    if (!url) return;
+    q.image_path = url;
+    q.image_url = url;
+    q.image_size = null;
+    q.image_url_input = '';
 }
 
 function formatSize(bytes) {
@@ -225,6 +249,9 @@ function save() {
         <div class="mb-6 flex items-center gap-4">
             <Button icon="pi pi-arrow-left" severity="secondary" text @click="router.get(route('admin.quiz.index'))" />
             <h1 class="text-2xl font-bold text-gray-800">Редактор квиза</h1>
+            <a :href="route('quiz.show', quiz.id)" target="_blank" class="text-gray-400 hover:text-blue-500 transition">
+                <i class="pi pi-eye text-2xl" />
+            </a>
         </div>
 
         <!-- Quiz title + published -->
@@ -363,27 +390,38 @@ function save() {
                     </div>
 
                     <!-- Upload button -->
-                    <div v-else>
-                        <label
-                            :for="`image_upload_${qIndex}`"
-                            class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-600 transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600"
-                        >
-                            <i class="pi pi-image" />
-                            Загрузить картинку
-                        </label>
-                        <input
-                            :id="`image_upload_${qIndex}`"
-                            type="file"
-                            accept="image/*"
-                            class="hidden"
-                            @change="onImageChange(qIndex, $event)"
-                        />
+                    <div v-else class="flex flex-col gap-2">
+                        <div class="flex items-center gap-2">
+                            <label
+                                :for="`image_upload_${qIndex}`"
+                                class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-600 transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600"
+                            >
+                                <i class="pi pi-image" />
+                                Загрузить файл
+                            </label>
+                            <input
+                                :id="`image_upload_${qIndex}`"
+                                type="file"
+                                accept="image/*"
+                                class="hidden"
+                                @change="onImageChange(qIndex, $event)"
+                            />
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <InputText
+                                v-model="q.image_url_input"
+                                placeholder="Или вставьте URL картинки..."
+                                class="flex-1 text-sm"
+                                @keydown.enter="setImageFromUrl(qIndex)"
+                            />
+                            <Button icon="pi pi-check" size="small" severity="secondary" :disabled="!q.image_url_input.trim()" @click="setImageFromUrl(qIndex)" />
+                        </div>
                     </div>
                 </div>
 
                 <!-- Answers -->
                 <div>
-                    <label class="mb-2 block text-sm text-gray-600">Варианты ответа (отметьте правильный, перетащите для сортировки)</label>
+                    <label class="mb-2 block text-sm text-gray-600">Варианты ответа (отметьте правильные, перетащите для сортировки)</label>
                     <VueDraggable
                         v-model="q.answers"
                         handle=".drag-handle"
@@ -400,18 +438,33 @@ function save() {
                             <span class="w-5 text-center text-xs font-bold text-gray-400">
                                 {{ String.fromCharCode(65 + aIndex) }}
                             </span>
-                            <RadioButton
+                            <Checkbox
                                 :inputId="`q${qIndex}_a${aIndex}`"
-                                :name="`q${qIndex}_correct`"
-                                :value="aIndex"
-                                :model-value="q.answers.findIndex(a => a.is_correct)"
-                                @change="setCorrect(qIndex, aIndex)"
+                                :binary="true"
+                                v-model="answer.is_correct"
                             />
                             <InputText v-model="answer.text" :placeholder="`Вариант ${aIndex + 1}`" class="flex-1" />
-                            <span v-if="answer.is_correct" class="w-20 text-right text-xs font-medium text-green-600">✓ правильный</span>
-                            <span v-else class="w-20" />
+                            <span v-if="answer.is_correct" class="shrink-0 text-xs font-medium text-green-600">✓ правильный</span>
+                            <Button
+                                v-if="q.answers.length > 2"
+                                icon="pi pi-times"
+                                severity="danger"
+                                text
+                                size="small"
+                                @click="removeAnswer(qIndex, aIndex)"
+                            />
+                            <span v-else class="w-7" />
                         </div>
                     </VueDraggable>
+                    <Button
+                        label="Добавить вариант"
+                        icon="pi pi-plus"
+                        severity="secondary"
+                        text
+                        size="small"
+                        class="mt-2"
+                        @click="addAnswer(qIndex)"
+                    />
                 </div>
             </div>
         </div>
