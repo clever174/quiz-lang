@@ -1,6 +1,6 @@
 {
-  "_AdminLayout-C5ek1bAy.js": {
-    "file": "assets/AdminLayout-C5ek1bAy.js",
+  "_AdminLayout-DixJOPqY.js": {
+    "file": "assets/AdminLayout-DixJOPqY.js",
     "name": "AdminLayout",
     "imports": [
       "_index.esm-4MaKtVwy.js",
@@ -84,8 +84,8 @@
       "_check-OxHgM04_.js"
     ]
   },
-  "_column-CrtBd5Zn.js": {
-    "file": "assets/column-CrtBd5Zn.js",
+  "_column-mW6jhUzd.js": {
+    "file": "assets/column-mW6jhUzd.js",
     "name": "column",
     "imports": [
       "_index.esm-4MaKtVwy.js",
@@ -217,17 +217,17 @@
     "src": "node_modules/primeicons/fonts/primeicons.woff2"
   },
   "resources/js/Pages/Admin/Dashboard.vue": {
-    "file": "assets/Dashboard-_CtxSzQL.js",
+    "file": "assets/Dashboard-DVbJm2V-.js",
     "name": "Dashboard",
     "src": "resources/js/Pages/Admin/Dashboard.vue",
     "isDynamicEntry": true,
     "imports": [
       "_index.esm-4MaKtVwy.js",
-      "_AdminLayout-C5ek1bAy.js"
+      "_AdminLayout-DixJOPqY.js"
     ]
   },
   "resources/js/Pages/Admin/Match/Edit.vue": {
-    "file": "assets/Edit-BAGO6NeV.js",
+    "file": "assets/Edit-CzePIse2.js",
     "name": "Edit",
     "src": "resources/js/Pages/Admin/Match/Edit.vue",
     "isDynamicEntry": true,
@@ -238,26 +238,26 @@
       "_inputtext-Bvscub5T.js",
       "_tag-bmSoXbUb.js",
       "_textarea-D64lFLYg.js",
-      "_AdminLayout-C5ek1bAy.js",
+      "_AdminLayout-DixJOPqY.js",
       "_vue-draggable-plus-CqBxI9dY.js"
     ]
   },
   "resources/js/Pages/Admin/Match/Index.vue": {
-    "file": "assets/Index-BTnEgRl7.js",
+    "file": "assets/Index-BDi8NzQY.js",
     "name": "Index",
     "src": "resources/js/Pages/Admin/Match/Index.vue",
     "isDynamicEntry": true,
     "imports": [
       "_index.esm-4MaKtVwy.js",
       "_button-CXGyAuqx.js",
-      "_column-CrtBd5Zn.js",
+      "_column-mW6jhUzd.js",
       "_inputtext-Bvscub5T.js",
       "_tag-bmSoXbUb.js",
-      "_AdminLayout-C5ek1bAy.js"
+      "_AdminLayout-DixJOPqY.js"
     ]
   },
   "resources/js/Pages/Admin/Quiz/Edit.vue": {
-    "file": "assets/Edit-CQtIFnt_.js",
+    "file": "assets/Edit-g8OPR8PF.js",
     "name": "Edit",
     "src": "resources/js/Pages/Admin/Quiz/Edit.vue",
     "isDynamicEntry": true,
@@ -269,26 +269,26 @@
       "_inputtext-Bvscub5T.js",
       "_tag-bmSoXbUb.js",
       "_textarea-D64lFLYg.js",
-      "_AdminLayout-C5ek1bAy.js",
+      "_AdminLayout-DixJOPqY.js",
       "_vue-draggable-plus-CqBxI9dY.js"
     ]
   },
   "resources/js/Pages/Admin/Quiz/Index.vue": {
-    "file": "assets/Index-B7B9kj3E.js",
+    "file": "assets/Index-DWrlmQMl.js",
     "name": "Index",
     "src": "resources/js/Pages/Admin/Quiz/Index.vue",
     "isDynamicEntry": true,
     "imports": [
       "_index.esm-4MaKtVwy.js",
       "_button-CXGyAuqx.js",
-      "_column-CrtBd5Zn.js",
+      "_column-mW6jhUzd.js",
       "_inputtext-Bvscub5T.js",
       "_tag-bmSoXbUb.js",
-      "_AdminLayout-C5ek1bAy.js"
+      "_AdminLayout-DixJOPqY.js"
     ]
   },
   "resources/js/Pages/Admin/Settings.vue": {
-    "file": "assets/Settings-CjoETlV_.js",
+    "file": "assets/Settings-8ObIrVdr.js",
     "name": "Settings",
     "src": "resources/js/Pages/Admin/Settings.vue",
     "isDynamicEntry": true,
@@ -298,7 +298,7 @@
       "_button-CXGyAuqx.js",
       "_tag-bmSoXbUb.js",
       "_textarea-D64lFLYg.js",
-      "_AdminLayout-C5ek1bAy.js"
+      "_AdminLayout-DixJOPqY.js"
     ]
   },
   "resources/js/Pages/Auth/ConfirmPassword.vue": {
@@ -483,7 +483,7 @@
     ]
   },
   "resources/js/Pages/Quiz/Show.vue": {
-    "file": "assets/Show-C8x7b4EN.js",
+    "file": "assets/Show-DqInVIf5.js",
     "name": "Show",
     "src": "resources/js/Pages/Quiz/Show.vue",
     "isDynamicEntry": true,
@@ -502,7 +502,7 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-Bh4gGGwc.js",
+    "file": "assets/app-Dw1UdtV0.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -536,7 +536,7 @@
       "resources/js/Pages/Welcome.vue"
     ],
     "css": [
-      "assets/app-Oawsv_7a.css"
+      "assets/app-BB63UO5A.css"
     ],
     "assets": [
       "assets/primeicons-DMOk5skT.eot",
