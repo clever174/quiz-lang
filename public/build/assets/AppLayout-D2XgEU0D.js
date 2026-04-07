@@ -1,0 +1,1 @@
+import{M as e,P as t,Z as n,g as r,y as i}from"./index.esm-4MaKtVwy.js";var a={class:`min-h-screen bg-gray-50`},o={__name:`AppLayout`,props:{maxWidth:{type:String,default:`max-w-4xl`}},setup(o){return(s,c)=>(e(),i(`div`,a,[r(`main`,{class:n([`mx-auto px-4 py-10`,o.maxWidth])},[t(s.$slots,`default`)],2)]))}};export{o as t};
