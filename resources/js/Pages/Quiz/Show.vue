@@ -166,11 +166,11 @@ const scoreLabel = computed(() => {
                 <!-- Question card -->
                 <div class="rounded-3xl bg-white p-6 shadow-sm">
                     <!-- Image -->
-                    <div v-if="question.image" class="mb-5">
+                    <div v-if="question.image" class="mb-5 flex justify-center">
                         <img
                             :src="imgSrc(question.image)"
-                            class="w-full rounded-2xl object-cover"
-                            style="max-height: 260px"
+                            class="rounded-2xl object-contain w-full"
+                            style="max-height: 512px"
                         />
                     </div>
 
