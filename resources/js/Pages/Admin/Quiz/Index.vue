@@ -111,7 +111,6 @@ function deleteQuiz(id) {
                         <Button
                             icon="pi pi-pencil"
                             size="small"
-                            severity="success"
                             @click="editQuiz(data.id)"
                         />
                         <Button

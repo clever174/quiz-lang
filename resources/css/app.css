@@ -1,3 +1,401 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ══════════════════════════════════════════════
+   DARK THEME
+══════════════════════════════════════════════ */
+[data-theme="dark"] body,
+[data-theme="dark"] .min-h-screen {
+    background-color: #1a1a2e !important;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] nav {
+    background-color: #16213e !important;
+    border-color: #2a2a4a !important;
+}
+
+[data-theme="dark"] nav a,
+[data-theme="dark"] nav span,
+[data-theme="dark"] nav select,
+[data-theme="dark"] nav button {
+    color: #c0c0d0 !important;
+}
+
+[data-theme="dark"] .bg-white {
+    background-color: #16213e !important;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .bg-gray-100 { background-color: #1a1a2e !important; }
+[data-theme="dark"] .bg-gray-50  { background-color: #1e2a3a !important; }
+
+[data-theme="dark"] .text-gray-800,
+[data-theme="dark"] .text-gray-700,
+[data-theme="dark"] .text-gray-600 { color: #c0c0d0 !important; }
+[data-theme="dark"] .text-gray-400,
+[data-theme="dark"] .text-gray-500 { color: #7080a0 !important; }
+
+[data-theme="dark"] .border-gray-100,
+[data-theme="dark"] .border-gray-200 { border-color: #2a3a5a !important; }
+
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+    background-color: #1e2a3a !important;
+    color: #e0e0e0 !important;
+    border-color: #2a3a5a !important;
+}
+
+
+/* ══════════════════════════════════════════════
+   SPACE THEME — nebula blobs
+══════════════════════════════════════════════ */
+.space-neb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    animation: nebPulse 14s ease-in-out infinite;
+}
+.space-neb-1 {
+    width: 700px; height: 500px;
+    top: -180px; left: -160px;
+    background: radial-gradient(circle, rgba(40,16,110,0.7) 0%, transparent 70%);
+    animation-delay: 0s;
+}
+.space-neb-2 {
+    width: 600px; height: 600px;
+    top: 35%; right: -180px;
+    background: radial-gradient(circle, rgba(80,12,100,0.5) 0%, transparent 70%);
+    animation-delay: -5s;
+}
+.space-neb-3 {
+    width: 500px; height: 400px;
+    bottom: -80px; left: 30%;
+    background: radial-gradient(circle, rgba(0,50,90,0.5) 0%, transparent 70%);
+    animation-delay: -9s;
+}
+@keyframes nebPulse {
+    0%, 100% { opacity: 0.5; }
+    50%       { opacity: 0.9; }
+}
+
+/* ── Base ── */
+[data-theme="space"] html,
+[data-theme="space"] body {
+    background-color: #04050f !important;
+}
+
+[data-theme="space"] .min-h-screen,
+[data-theme="space"] .bg-gray-100,
+[data-theme="space"] .bg-gray-50 {
+    background-color: transparent !important;
+    background: transparent !important;
+    position: relative;
+    z-index: 2;
+}
+
+/* ── Nav — frosted glass + glowing separator ── */
+[data-theme="space"] nav {
+    background: rgba(4, 5, 20, 0.6) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid rgba(110, 64, 245, 0.35) !important;
+    box-shadow:
+        0 1px 0 rgba(200, 80, 240, 0.15),
+        0 4px 40px rgba(110, 64, 245, 0.14),
+        inset 0 0 60px rgba(110, 64, 245, 0.03) !important;
+    position: relative;
+    z-index: 10;
+}
+
+[data-theme="space"] nav a,
+[data-theme="space"] nav span,
+[data-theme="space"] nav select,
+[data-theme="space"] nav button {
+    color: #b0a0e8 !important;
+}
+[data-theme="space"] nav a:hover { color: #00d4ff !important; }
+
+/* ── Cards / panels ── */
+[data-theme="space"] .bg-white {
+    background: rgba(8, 10, 28, 0.72) !important;
+    border: 1px solid rgba(110, 64, 245, 0.18) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    color: #eef0ff;
+    box-shadow: 0 4px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.04) !important;
+}
+
+/* ── Text ── */
+[data-theme="space"] .text-gray-800,
+[data-theme="space"] .text-gray-700 { color: #c8c0f0 !important; }
+[data-theme="space"] .text-gray-600  { color: #9490c8 !important; }
+[data-theme="space"] .text-gray-500,
+[data-theme="space"] .text-gray-400  { color: #5a5490 !important; }
+
+/* ── Borders ── */
+[data-theme="space"] .border-gray-100,
+[data-theme="space"] .border-gray-200 { border-color: rgba(110, 64, 245, 0.18) !important; }
+
+/* ── Blue accent → purple glow ── */
+[data-theme="space"] .bg-blue-500 {
+    background: linear-gradient(135deg, #6e40f5, #c850f0) !important;
+    box-shadow: 0 0 24px rgba(110, 64, 245, 0.55) !important;
+}
+[data-theme="space"] .hover\:bg-blue-600:hover,
+[data-theme="space"] .bg-blue-600 {
+    background: linear-gradient(135deg, #7a4fff, #d060ff) !important;
+}
+[data-theme="space"] .text-blue-500 { color: #a070ff !important; }
+[data-theme="space"] .text-blue-600 { color: #a070ff !important; }
+[data-theme="space"] .bg-blue-50    { background: rgba(110, 64, 245, 0.12) !important; }
+[data-theme="space"] .border-blue-500 { border-color: rgba(110, 64, 245, 0.7) !important; }
+[data-theme="space"] .border-blue-300 { border-color: rgba(110, 64, 245, 0.35) !important; }
+
+/* ── Progress bar ── */
+[data-theme="space"] .bg-blue-500.h-full {
+    background: linear-gradient(90deg, #6e40f5, #00d4ff) !important;
+    box-shadow: 0 0 10px rgba(110, 64, 245, 0.6) !important;
+}
+
+/* ── Green / red feedback stays readable ── */
+[data-theme="space"] .bg-green-50 { background: rgba(0, 180, 100, 0.12) !important; }
+[data-theme="space"] .bg-red-50   { background: rgba(220, 50, 50, 0.12) !important; }
+[data-theme="space"] .border-green-500 { border-color: rgba(0, 220, 120, 0.7) !important; }
+[data-theme="space"] .border-red-400   { border-color: rgba(220, 80, 80, 0.7) !important; }
+
+/* ── Dark button (next question) ── */
+[data-theme="space"] .bg-gray-800 {
+    background: rgba(30, 20, 60, 0.85) !important;
+    border: 1px solid rgba(110, 64, 245, 0.3) !important;
+    box-shadow: 0 0 18px rgba(110, 64, 245, 0.2) !important;
+}
+[data-theme="space"] .hover\:bg-gray-900:hover {
+    background: rgba(40, 28, 80, 0.95) !important;
+}
+
+/* ── Number badge on answers ── */
+[data-theme="space"] .bg-gray-100 {
+    background: rgba(110, 64, 245, 0.15) !important;
+}
+[data-theme="space"] .text-gray-500.font-bold { color: #a090d8 !important; }
+
+/* ── Inputs / textarea / select ── */
+[data-theme="space"] input,
+[data-theme="space"] textarea,
+[data-theme="space"] select {
+    background: rgba(8, 10, 28, 0.75) !important;
+    color: #eef0ff !important;
+    border-color: rgba(110, 64, 245, 0.3) !important;
+}
+[data-theme="space"] input:focus,
+[data-theme="space"] textarea:focus {
+    border-color: rgba(110, 64, 245, 0.7) !important;
+    box-shadow: 0 0 0 3px rgba(110, 64, 245, 0.18) !important;
+    outline: none !important;
+}
+
+/* ── Result screen circle ── */
+[data-theme="space"] .rounded-full.bg-white {
+    background: rgba(8, 10, 28, 0.8) !important;
+    border: 1px solid rgba(110, 64, 245, 0.3) !important;
+    box-shadow: 0 0 40px rgba(110, 64, 245, 0.25) !important;
+}
+
+/* ══════════════════════════════════════════════
+   SPACE THEME — Admin / PrimeVue
+══════════════════════════════════════════════ */
+
+/* ── Dashboard green card → purple ── */
+[data-theme="space"] .bg-green-500 {
+    background: linear-gradient(135deg, #6e40f5, #c850f0) !important;
+    box-shadow: 0 0 24px rgba(110, 64, 245, 0.55) !important;
+}
+[data-theme="space"] .hover\:bg-green-600:hover {
+    background: linear-gradient(135deg, #7a4fff, #d060ff) !important;
+}
+
+/* ── PrimeVue DataTable ── */
+[data-theme="space"] .p-datatable {
+    background: transparent !important;
+    color: #c8c0f0 !important;
+}
+[data-theme="space"] .p-datatable-table-container,
+[data-theme="space"] .p-datatable > .p-component-overlay {
+    background: transparent !important;
+}
+[data-theme="space"] .p-datatable table {
+    background: rgba(8, 10, 28, 0.72) !important;
+    backdrop-filter: blur(14px) !important;
+    border-radius: 12px !important;
+    overflow: hidden;
+    border: 1px solid rgba(110, 64, 245, 0.18) !important;
+}
+[data-theme="space"] .p-datatable thead tr,
+[data-theme="space"] .p-datatable .p-datatable-column-header-cell,
+[data-theme="space"] .p-datatable th {
+    background: rgba(10, 8, 36, 0.9) !important;
+    color: #7060c0 !important;
+    border-color: rgba(110, 64, 245, 0.2) !important;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+[data-theme="space"] .p-datatable tbody tr,
+[data-theme="space"] .p-datatable .p-datatable-row {
+    background: transparent !important;
+    border-color: rgba(110, 64, 245, 0.1) !important;
+    color: #c8c0f0 !important;
+    transition: background 0.2s !important;
+}
+[data-theme="space"] .p-datatable tbody tr:hover,
+[data-theme="space"] .p-datatable .p-datatable-row:hover {
+    background: rgba(110, 64, 245, 0.07) !important;
+}
+[data-theme="space"] .p-datatable td,
+[data-theme="space"] .p-datatable .p-datatable-body-cell {
+    border-color: rgba(110, 64, 245, 0.1) !important;
+    color: #c8c0f0 !important;
+}
+/* Sort icon */
+[data-theme="space"] .p-datatable .p-sortable-column-icon { color: #6050a0 !important; }
+[data-theme="space"] .p-datatable .p-sortable-column:hover { background: rgba(110, 64, 245, 0.1) !important; }
+
+/* DataTable header slot (search bar area) */
+[data-theme="space"] .p-datatable-header {
+    background: rgba(8, 10, 28, 0.72) !important;
+    border-color: rgba(110, 64, 245, 0.18) !important;
+    color: #c8c0f0 !important;
+    border-radius: 12px 12px 0 0 !important;
+}
+
+/* DataTable paginator */
+[data-theme="space"] .p-paginator {
+    background: rgba(8, 10, 28, 0.8) !important;
+    border-color: rgba(110, 64, 245, 0.18) !important;
+    color: #9490c8 !important;
+    border-radius: 0 0 12px 12px !important;
+}
+[data-theme="space"] .p-paginator .p-paginator-page,
+[data-theme="space"] .p-paginator button {
+    color: #9490c8 !important;
+    background: transparent !important;
+    border-color: transparent !important;
+}
+[data-theme="space"] .p-paginator .p-paginator-page.p-highlight,
+[data-theme="space"] .p-paginator .p-highlight {
+    background: rgba(110, 64, 245, 0.25) !important;
+    color: #c8c0f0 !important;
+    border-color: rgba(110, 64, 245, 0.4) !important;
+}
+[data-theme="space"] .p-paginator button:not(:disabled):hover {
+    background: rgba(110, 64, 245, 0.12) !important;
+    color: #eef0ff !important;
+}
+
+/* ── PrimeVue Button — primary → purple ── */
+[data-theme="space"] .p-button:not(.p-button-text):not(.p-button-outlined):not(.p-button-secondary):not(.p-button-danger):not(.p-button-warn):not(.p-button-info):not(.p-button-contrast) {
+    background: linear-gradient(135deg, #6e40f5, #c850f0) !important;
+    border: none !important;
+    box-shadow: 0 0 16px rgba(110, 64, 245, 0.4) !important;
+    color: #fff !important;
+}
+[data-theme="space"] .p-button:not(.p-button-text):not(.p-button-outlined):not(.p-button-secondary):not(.p-button-danger):not(.p-button-warn):not(.p-button-info):not(.p-button-contrast):hover {
+    background: linear-gradient(135deg, #7a4fff, #d060ff) !important;
+    box-shadow: 0 0 24px rgba(110, 64, 245, 0.6) !important;
+}
+
+/* ── PrimeVue Button — success → purple ── */
+[data-theme="space"] .p-button-success:not(.p-button-text):not(.p-button-outlined) {
+    background: linear-gradient(135deg, #6e40f5, #c850f0) !important;
+    border-color: transparent !important;
+    box-shadow: 0 0 16px rgba(110, 64, 245, 0.4) !important;
+    color: #fff !important;
+}
+[data-theme="space"] .p-button-success:not(.p-button-text):not(.p-button-outlined):hover {
+    background: linear-gradient(135deg, #7a4fff, #d060ff) !important;
+    box-shadow: 0 0 24px rgba(110, 64, 245, 0.6) !important;
+}
+/* Text / outlined success → purple tint */
+[data-theme="space"] .p-button-success.p-button-text,
+[data-theme="space"] .p-button-success.p-button-outlined {
+    color: #a070ff !important;
+    border-color: rgba(110, 64, 245, 0.4) !important;
+}
+
+/* ── PrimeVue Button — secondary ── */
+[data-theme="space"] .p-button-secondary:not(.p-button-text):not(.p-button-outlined) {
+    background: rgba(30, 20, 60, 0.85) !important;
+    border-color: rgba(110, 64, 245, 0.3) !important;
+    color: #b0a0e8 !important;
+}
+[data-theme="space"] .p-button-secondary.p-button-text,
+[data-theme="space"] .p-button-secondary.p-button-outlined {
+    color: #9490c8 !important;
+}
+[data-theme="space"] .p-button-secondary.p-button-text:hover {
+    background: rgba(110, 64, 245, 0.1) !important;
+}
+
+/* ── PrimeVue Tag — success → purple ── */
+[data-theme="space"] .p-tag-success {
+    background: rgba(110, 64, 245, 0.25) !important;
+    color: #b090ff !important;
+}
+[data-theme="space"] .p-tag-secondary {
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: #7060a0 !important;
+}
+
+/* ── PrimeVue InputText, Textarea, Select ── */
+[data-theme="space"] .p-inputtext,
+[data-theme="space"] .p-textarea,
+[data-theme="space"] .p-select,
+[data-theme="space"] .p-select-overlay {
+    background: rgba(8, 10, 28, 0.8) !important;
+    color: #eef0ff !important;
+    border-color: rgba(110, 64, 245, 0.3) !important;
+}
+[data-theme="space"] .p-inputtext:focus,
+[data-theme="space"] .p-textarea:focus {
+    border-color: rgba(110, 64, 245, 0.7) !important;
+    box-shadow: 0 0 0 3px rgba(110, 64, 245, 0.18) !important;
+}
+
+/* ── PrimeVue Checkbox ── */
+[data-theme="space"] .p-checkbox .p-checkbox-box {
+    background: rgba(8, 10, 28, 0.8) !important;
+    border-color: rgba(110, 64, 245, 0.4) !important;
+}
+[data-theme="space"] .p-checkbox .p-checkbox-box.p-highlight {
+    background: linear-gradient(135deg, #6e40f5, #c850f0) !important;
+    border-color: transparent !important;
+}
+
+/* ── PrimeVue ToggleSwitch / Switch ── */
+[data-theme="space"] .p-toggleswitch-checked .p-toggleswitch-slider {
+    background: linear-gradient(135deg, #6e40f5, #c850f0) !important;
+}
+[data-theme="space"] .p-toggleswitch-slider {
+    background: rgba(60, 40, 100, 0.6) !important;
+    border-color: rgba(110, 64, 245, 0.3) !important;
+}
+
+/* ── PrimeVue Panel / Card ── */
+[data-theme="space"] .p-panel,
+[data-theme="space"] .p-card {
+    background: rgba(8, 10, 28, 0.72) !important;
+    border-color: rgba(110, 64, 245, 0.18) !important;
+    color: #c8c0f0 !important;
+}
+
+/* ── PrimeVue Toast (space glow) ── */
+[data-theme="space"] .p-toast .p-toast-message {
+    background: rgba(8, 10, 28, 0.92) !important;
+    border-color: rgba(110, 64, 245, 0.3) !important;
+    color: #c8c0f0 !important;
+    backdrop-filter: blur(14px) !important;
+    box-shadow: 0 4px 32px rgba(110, 64, 245, 0.2) !important;
+}

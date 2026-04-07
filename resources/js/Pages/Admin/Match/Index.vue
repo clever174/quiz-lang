@@ -109,7 +109,7 @@ function deleteMatch(id) {
             <Column header="Действия" style="width: 140px">
                 <template #body="{ data }">
                     <div class="flex gap-2">
-                        <Button icon="pi pi-pencil" size="small" severity="success" @click="editMatch(data.id)" />
+                        <Button icon="pi pi-pencil" size="small" @click="editMatch(data.id)" />
                         <Button icon="pi pi-trash" size="small" severity="danger" @click="deleteMatch(data.id)" />
                     </div>
                 </template>

@@ -1,11 +1,18 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
+import { useTheme } from '@/composables/useTheme';
+import SpaceBackground from '@/Components/SpaceBackground.vue';
 
 // Ширина контейнера админки — меняйте здесь
 const container = 'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8';
+
+const { current: theme } = useTheme();
+
+const themeLabels = { light: 'Светлая', dark: 'Тёмная', space: 'Космос' };
 </script>
 
 <template>
+    <SpaceBackground />
     <Toast />
     <div class="min-h-screen bg-gray-100">
         <nav class="border-b border-gray-100 bg-white">
@@ -44,6 +51,12 @@ const container = 'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8';
 
                     <!-- User menu -->
                     <div class="flex items-center gap-4">
+                        <select
+                            v-model="theme"
+                            class="text-sm text-gray-600 bg-transparent border-0 outline-none cursor-pointer"
+                        >
+                            <option v-for="(label, key) in themeLabels" :key="key" :value="key">{{ label }}</option>
+                        </select>
                         <span class="text-sm text-gray-600">{{ $page.props.auth.user.name }}</span>
                         <Link
                             :href="route('logout')"
