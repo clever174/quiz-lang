@@ -53,7 +53,7 @@ const themeLabels = { light: 'Светлая', dark: 'Тёмная', space: 'К�
                     <div class="flex items-center gap-4">
                         <select
                             v-model="theme"
-                            class="text-sm text-gray-600 bg-transparent border-0 outline-none cursor-pointer"
+                            class="text-sm text-gray-600 bg-transparent border-0 outline-none focus:outline-none focus:ring-0 rounded-full cursor-pointer px-2 py-1"
                         >
                             <option v-for="(label, key) in themeLabels" :key="key" :value="key">{{ label }}</option>
                         </select>

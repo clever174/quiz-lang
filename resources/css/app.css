@@ -2,50 +2,271 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Theme selector — no focus ring in any theme */
+nav select,
+nav select:focus,
+nav select:focus-visible {
+    outline: none !important;
+    outline-offset: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    background-image: none !important;
+}
+
 /* ══════════════════════════════════════════════
    DARK THEME
 ══════════════════════════════════════════════ */
-[data-theme="dark"] body,
-[data-theme="dark"] .min-h-screen {
-    background-color: #1a1a2e !important;
-    color: #e0e0e0;
+
+/* ── Base ── */
+[data-theme="dark"] html,
+[data-theme="dark"] body {
+    background-color: #0d0f18 !important;
 }
 
+[data-theme="dark"] .min-h-screen,
+[data-theme="dark"] .bg-gray-100,
+[data-theme="dark"] .bg-gray-50 {
+    background-color: transparent !important;
+    background: transparent !important;
+    position: relative;
+    z-index: 2;
+}
+
+/* Subtle gradient behind everything */
+[data-theme="dark"] body {
+    background-image:
+        radial-gradient(ellipse at 15% 10%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 80%, rgba(56, 189, 248, 0.06) 0%, transparent 50%) !important;
+}
+
+/* ── Nav — frosted glass + glowing separator ── */
 [data-theme="dark"] nav {
-    background-color: #16213e !important;
-    border-color: #2a2a4a !important;
+    background: rgba(10, 11, 22, 0.8) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid rgba(99, 102, 241, 0.25) !important;
+    box-shadow:
+        0 1px 0 rgba(99, 102, 241, 0.12),
+        0 4px 32px rgba(0, 0, 0, 0.4) !important;
+    position: relative;
+    z-index: 10;
 }
 
 [data-theme="dark"] nav a,
 [data-theme="dark"] nav span,
 [data-theme="dark"] nav select,
 [data-theme="dark"] nav button {
-    color: #c0c0d0 !important;
+    color: #94a3b8 !important;
 }
+[data-theme="dark"] nav a:hover { color: #e2e8f0 !important; }
 
+/* ── Cards / panels ── */
 [data-theme="dark"] .bg-white {
-    background-color: #16213e !important;
-    color: #e0e0e0;
+    background: rgba(18, 21, 36, 0.9) !important;
+    border: 1px solid rgba(99, 102, 241, 0.14) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    color: #e2e8f0;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255,255,255,0.03) !important;
 }
 
-[data-theme="dark"] .bg-gray-100 { background-color: #1a1a2e !important; }
-[data-theme="dark"] .bg-gray-50  { background-color: #1e2a3a !important; }
-
+/* ── Text ── */
 [data-theme="dark"] .text-gray-800,
-[data-theme="dark"] .text-gray-700,
-[data-theme="dark"] .text-gray-600 { color: #c0c0d0 !important; }
-[data-theme="dark"] .text-gray-400,
-[data-theme="dark"] .text-gray-500 { color: #7080a0 !important; }
+[data-theme="dark"] .text-gray-700 { color: #e2e8f0 !important; }
+[data-theme="dark"] .text-gray-600  { color: #94a3b8 !important; }
+[data-theme="dark"] .text-gray-500,
+[data-theme="dark"] .text-gray-400  { color: #475569 !important; }
 
+/* ── Borders ── */
 [data-theme="dark"] .border-gray-100,
-[data-theme="dark"] .border-gray-200 { border-color: #2a3a5a !important; }
+[data-theme="dark"] .border-gray-200 { border-color: rgba(99, 102, 241, 0.15) !important; }
 
+/* ── Blue accent → indigo glow ── */
+[data-theme="dark"] .bg-blue-500 {
+    background: #4f46e5 !important;
+    box-shadow: 0 0 20px rgba(79, 70, 229, 0.45) !important;
+}
+[data-theme="dark"] .hover\:bg-blue-600:hover,
+[data-theme="dark"] .bg-blue-600 { background: #4338ca !important; }
+[data-theme="dark"] .text-blue-500 { color: #818cf8 !important; }
+[data-theme="dark"] .text-blue-600 { color: #818cf8 !important; }
+[data-theme="dark"] .bg-blue-50    { background: rgba(79, 70, 229, 0.1) !important; }
+[data-theme="dark"] .border-blue-500 { border-color: rgba(79, 70, 229, 0.6) !important; }
+[data-theme="dark"] .border-blue-300 { border-color: rgba(79, 70, 229, 0.3) !important; }
+
+/* ── Progress bar ── */
+[data-theme="dark"] .bg-blue-500.h-full {
+    background: linear-gradient(90deg, #4f46e5, #38bdf8) !important;
+    box-shadow: 0 0 8px rgba(79, 70, 229, 0.5) !important;
+}
+
+/* ── Green / red feedback ── */
+[data-theme="dark"] .bg-green-50 { background: rgba(16, 185, 129, 0.1) !important; }
+[data-theme="dark"] .bg-red-50   { background: rgba(239, 68, 68, 0.1) !important; }
+[data-theme="dark"] .border-green-500 { border-color: rgba(16, 185, 129, 0.6) !important; }
+[data-theme="dark"] .border-red-400   { border-color: rgba(239, 68, 68, 0.6) !important; }
+
+/* ── Dark button (next question) ── */
+[data-theme="dark"] .bg-gray-800 {
+    background: rgba(18, 21, 36, 0.95) !important;
+    border: 1px solid rgba(99, 102, 241, 0.25) !important;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.4) !important;
+}
+[data-theme="dark"] .hover\:bg-gray-900:hover {
+    background: rgba(10, 12, 28, 0.98) !important;
+}
+
+/* ── Number badge ── */
+[data-theme="dark"] .bg-gray-100 { background: rgba(99, 102, 241, 0.12) !important; }
+
+/* ── Inputs ── */
 [data-theme="dark"] input,
 [data-theme="dark"] textarea,
 [data-theme="dark"] select {
-    background-color: #1e2a3a !important;
-    color: #e0e0e0 !important;
-    border-color: #2a3a5a !important;
+    background: rgba(10, 12, 24, 0.8) !important;
+    color: #e2e8f0 !important;
+    border-color: rgba(99, 102, 241, 0.25) !important;
+}
+[data-theme="dark"] input:focus,
+[data-theme="dark"] textarea:focus {
+    border-color: rgba(99, 102, 241, 0.6) !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+    outline: none !important;
+}
+
+/* ── Result circle ── */
+[data-theme="dark"] .rounded-full.bg-white {
+    background: rgba(18, 21, 36, 0.9) !important;
+    border: 1px solid rgba(99, 102, 241, 0.25) !important;
+    box-shadow: 0 0 32px rgba(79, 70, 229, 0.2) !important;
+}
+
+/* ── Dashboard green card → indigo ── */
+[data-theme="dark"] .bg-green-500 {
+    background: #4f46e5 !important;
+    box-shadow: 0 0 20px rgba(79, 70, 229, 0.4) !important;
+}
+[data-theme="dark"] .hover\:bg-green-600:hover { background: #4338ca !important; }
+
+/* ── PrimeVue DataTable ── */
+[data-theme="dark"] .p-datatable table {
+    background: rgba(18, 21, 36, 0.9) !important;
+    border: 1px solid rgba(99, 102, 241, 0.14) !important;
+    border-radius: 12px !important;
+    overflow: hidden;
+}
+[data-theme="dark"] .p-datatable thead tr,
+[data-theme="dark"] .p-datatable th {
+    background: rgba(10, 11, 22, 0.95) !important;
+    color: #475569 !important;
+    border-color: rgba(99, 102, 241, 0.14) !important;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+[data-theme="dark"] .p-datatable tbody tr {
+    background: transparent !important;
+    border-color: rgba(99, 102, 241, 0.08) !important;
+    color: #e2e8f0 !important;
+}
+[data-theme="dark"] .p-datatable tbody tr:hover {
+    background: rgba(99, 102, 241, 0.06) !important;
+}
+[data-theme="dark"] .p-datatable td {
+    border-color: rgba(99, 102, 241, 0.08) !important;
+    color: #cbd5e1 !important;
+}
+[data-theme="dark"] .p-datatable-header {
+    background: rgba(18, 21, 36, 0.9) !important;
+    border-color: rgba(99, 102, 241, 0.14) !important;
+    color: #e2e8f0 !important;
+    border-radius: 12px 12px 0 0 !important;
+}
+[data-theme="dark"] .p-paginator {
+    background: rgba(10, 11, 22, 0.9) !important;
+    border-color: rgba(99, 102, 241, 0.14) !important;
+    color: #64748b !important;
+    border-radius: 0 0 12px 12px !important;
+}
+[data-theme="dark"] .p-paginator button { color: #64748b !important; background: transparent !important; }
+[data-theme="dark"] .p-paginator .p-highlight {
+    background: rgba(79, 70, 229, 0.2) !important;
+    color: #e2e8f0 !important;
+}
+[data-theme="dark"] .p-paginator button:not(:disabled):hover {
+    background: rgba(99, 102, 241, 0.1) !important;
+    color: #e2e8f0 !important;
+}
+
+/* ── PrimeVue Button — primary → indigo ── */
+[data-theme="dark"] .p-button:not(.p-button-text):not(.p-button-outlined):not(.p-button-secondary):not(.p-button-danger):not(.p-button-warn):not(.p-button-info):not(.p-button-contrast) {
+    background: #4f46e5 !important;
+    border: none !important;
+    box-shadow: 0 0 14px rgba(79, 70, 229, 0.35) !important;
+    color: #fff !important;
+}
+[data-theme="dark"] .p-button:not(.p-button-text):not(.p-button-outlined):not(.p-button-secondary):not(.p-button-danger):not(.p-button-warn):not(.p-button-info):not(.p-button-contrast):hover {
+    background: #4338ca !important;
+    box-shadow: 0 0 20px rgba(79, 70, 229, 0.5) !important;
+}
+
+/* ── PrimeVue Button — secondary ── */
+[data-theme="dark"] .p-button-secondary:not(.p-button-text):not(.p-button-outlined) {
+    background: rgba(18, 21, 36, 0.95) !important;
+    border-color: rgba(99, 102, 241, 0.25) !important;
+    color: #94a3b8 !important;
+}
+[data-theme="dark"] .p-button-secondary.p-button-text { color: #64748b !important; }
+[data-theme="dark"] .p-button-secondary.p-button-text:hover {
+    background: rgba(99, 102, 241, 0.08) !important;
+}
+
+/* ── PrimeVue Tag ── */
+[data-theme="dark"] .p-tag-success {
+    background: rgba(79, 70, 229, 0.2) !important;
+    color: #a5b4fc !important;
+}
+[data-theme="dark"] .p-tag-secondary {
+    background: rgba(255,255,255,0.05) !important;
+    color: #475569 !important;
+}
+
+/* ── PrimeVue InputText ── */
+[data-theme="dark"] .p-inputtext,
+[data-theme="dark"] .p-textarea {
+    background: rgba(10, 12, 24, 0.8) !important;
+    color: #e2e8f0 !important;
+    border-color: rgba(99, 102, 241, 0.25) !important;
+}
+[data-theme="dark"] .p-inputtext:focus,
+[data-theme="dark"] .p-textarea:focus {
+    border-color: rgba(99, 102, 241, 0.6) !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+}
+
+/* ── PrimeVue Checkbox ── */
+[data-theme="dark"] .p-checkbox .p-checkbox-box {
+    background: rgba(10, 12, 24, 0.8) !important;
+    border-color: rgba(99, 102, 241, 0.35) !important;
+}
+[data-theme="dark"] .p-checkbox .p-checkbox-box.p-highlight {
+    background: #4f46e5 !important;
+    border-color: transparent !important;
+}
+
+/* ── PrimeVue ToggleSwitch ── */
+[data-theme="dark"] .p-toggleswitch-checked .p-toggleswitch-slider { background: #4f46e5 !important; }
+[data-theme="dark"] .p-toggleswitch-slider { background: rgba(30, 30, 50, 0.8) !important; }
+
+/* ── PrimeVue Toast ── */
+[data-theme="dark"] .p-toast .p-toast-message {
+    background: rgba(18, 21, 36, 0.95) !important;
+    border-color: rgba(99, 102, 241, 0.25) !important;
+    color: #e2e8f0 !important;
+    backdrop-filter: blur(14px) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5) !important;
 }
 
 
