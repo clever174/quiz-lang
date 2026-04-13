@@ -56,6 +56,7 @@ const questions = ref(
         question_text: q.question_text ?? '',
         image_path: q.image ?? null,
         image_url: resolveUrl(q.image),
+        image_file: null,
         image_size: null,
         image_uploading: false,
         image_url_input: '',
@@ -71,6 +72,7 @@ function addQuestion() {
         question_text: '',
         image_path: null,
         image_url: null,
+        image_file: null,
         image_size: null,
         image_uploading: false,
         image_url_input: '',
@@ -80,6 +82,47 @@ function addQuestion() {
 
 function removeQuestion(index) {
     questions.value.splice(index, 1);
+}
+
+async function duplicateQuestion(qIndex) {
+    const q = questions.value[qIndex];
+
+    let image_path = q.image_path;
+    let image_url = q.image_url;
+    let image_file = null;
+    let image_size = q.image_size;
+
+    if (q.image_file) {
+        // File not yet uploaded — share the File object, create a new blob preview
+        image_file = q.image_file;
+        image_url = URL.createObjectURL(q.image_file);
+        image_path = null;
+        image_size = null;
+    } else if (image_path && !image_path.startsWith('http')) {
+        // Already uploaded — copy the file on the server
+        try {
+            const { data } = await axios.post(route('admin.quiz.copy-image'), { path: image_path });
+            image_path = data.path;
+            image_url = data.url;
+            image_size = data.size;
+        } catch {
+            toast.add({ severity: 'error', summary: 'Ошибка копирования картинки', life: 3000 });
+        }
+    }
+
+    const copy = {
+        id: null,
+        question_text: q.question_text,
+        image_path,
+        image_url,
+        image_file,
+        image_size,
+        image_uploading: false,
+        image_url_input: '',
+        answers: q.answers.map(a => ({ id: null, text: a.text, is_correct: a.is_correct })),
+    };
+
+    questions.value.splice(qIndex + 1, 0, copy);
 }
 
 function toggleCorrect(qIndex, aIndex) {
@@ -94,35 +137,22 @@ function removeAnswer(qIndex, aIndex) {
     questions.value[qIndex].answers.splice(aIndex, 1);
 }
 
-async function onImageChange(qIndex, event) {
+function onImageChange(qIndex, event) {
     const file = event.target.files[0];
     if (!file) return;
 
     const q = questions.value[qIndex];
-    q.image_uploading = true;
+    if (q.image_url?.startsWith('blob:')) URL.revokeObjectURL(q.image_url);
+    q.image_file = file;
     q.image_url = URL.createObjectURL(file);
+    q.image_path = null;
     q.image_size = null;
-
-    try {
-        const formData = new FormData();
-        formData.append('image', file);
-
-        const { data } = await axios.post(route('admin.quiz.upload-image'), formData);
-
-        q.image_path = data.path;
-        q.image_url = data.url;
-        q.image_size = data.size;
-    } catch (e) {
-        toast.add({ severity: 'error', summary: 'Ошибка загрузки', life: 3000 });
-        q.image_url = null;
-        q.image_path = null;
-    } finally {
-        q.image_uploading = false;
-    }
 }
 
 function removeImage(qIndex) {
     const q = questions.value[qIndex];
+    if (q.image_url?.startsWith('blob:')) URL.revokeObjectURL(q.image_url);
+    q.image_file = null;
     q.image_path = null;
     q.image_url = null;
     q.image_size = null;
@@ -178,6 +208,7 @@ function parseAndImport(jsonString, errorLabel = 'Ошибка') {
                 question_text: String(item.question_text ?? ''),
                 image_path: null,
                 image_url: null,
+                image_file: null,
                 image_size: null,
                 image_uploading: false,
                 answers,
@@ -216,7 +247,28 @@ function importFromText() {
     }
 }
 
-function save() {
+async function save() {
+    // Upload pending image files before saving
+    for (const q of questions.value) {
+        if (!q.image_file) continue;
+
+        q.image_uploading = true;
+        try {
+            const fd = new FormData();
+            fd.append('image', q.image_file);
+            const { data } = await axios.post(route('admin.quiz.upload-image'), fd);
+            q.image_path = data.path;
+            q.image_url = data.url;
+            q.image_size = data.size;
+            q.image_file = null;
+        } catch {
+            toast.add({ severity: 'error', summary: 'Ошибка загрузки картинки', life: 3000 });
+            q.image_uploading = false;
+            return;
+        }
+        q.image_uploading = false;
+    }
+
     const formData = new FormData();
     formData.append('_method', 'PUT');
     formData.append('title', title.value);
@@ -337,14 +389,27 @@ function save() {
         </div>
 
         <!-- Questions -->
-        <div class="flex flex-col gap-6">
+        <VueDraggable v-model="questions" handle=".question-drag-handle" animation="150" class="flex flex-col gap-6">
             <div
                 v-for="(q, qIndex) in questions"
-                :key="qIndex"
+                :key="q.id ?? `new-${qIndex}`"
                 class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
             >
                 <div class="mb-4 flex items-center justify-between">
-                    <span class="font-semibold text-gray-700">Вопрос {{ qIndex + 1 }}</span>
+                    <div class="flex items-center gap-1">
+                        <i
+                            class="question-drag-handle pi pi-bars cursor-grab rounded p-1.5 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 active:cursor-grabbing"
+                            title="Перетащить"
+                        />
+                        <button
+                            class="rounded p-1.5 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700"
+                            title="Дублировать"
+                            @click="duplicateQuestion(qIndex)"
+                        >
+                            <i class="pi pi-copy" />
+                        </button>
+                        <span class="ml-1 font-semibold text-gray-700">Вопрос {{ qIndex + 1 }}</span>
+                    </div>
                     <Button icon="pi pi-trash" severity="danger" text size="small" @click="removeQuestion(qIndex)" />
                 </div>
 
@@ -378,7 +443,11 @@ function save() {
                             <!-- Size badge -->
                             <div v-if="q.image_uploading" class="flex items-center gap-1.5 text-xs text-gray-400">
                                 <i class="pi pi-spin pi-spinner text-xs" />
-                                Обработка...
+                                Загрузка...
+                            </div>
+                            <div v-else-if="q.image_file" class="flex items-center gap-1.5 rounded-full bg-yellow-50 px-3 py-1 text-xs font-medium text-yellow-700">
+                                <i class="pi pi-clock" />
+                                Сохраните квиз
                             </div>
                             <div v-else-if="q.image_size !== null" class="flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700">
                                 <i class="pi pi-check-circle" />
@@ -467,7 +536,7 @@ function save() {
                     />
                 </div>
             </div>
-        </div>
+        </VueDraggable>
 
         <!-- Actions -->
         <div class="mt-6 flex gap-3">

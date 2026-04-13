@@ -131,6 +131,30 @@ class QuizController extends Controller
         ]);
     }
 
+    public function copyImage(Request $request)
+    {
+        $path = $request->input('path');
+
+        if (!$path || str_starts_with($path, 'http')) {
+            return response()->json(['path' => $path, 'url' => $path, 'size' => null]);
+        }
+
+        if (!Storage::disk('public')->exists($path)) {
+            abort(404);
+        }
+
+        $ext = pathinfo($path, PATHINFO_EXTENSION);
+        $newPath = 'quiz-images/' . \Illuminate\Support\Str::uuid() . '.' . $ext;
+        Storage::disk('public')->copy($path, $newPath);
+        $size = Storage::disk('public')->size($newPath);
+
+        return response()->json([
+            'path' => $newPath,
+            'url'  => Storage::disk('public')->url($newPath),
+            'size' => $size,
+        ]);
+    }
+
     public function destroy(Quiz $quiz)
     {
         $quiz->questions->each(function ($q) {

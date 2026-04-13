@@ -24,6 +24,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/quiz', [AdminQuizController::class, 'index'])->name('quiz.index');
     Route::post('/quiz', [AdminQuizController::class, 'create'])->name('quiz.create');
     Route::post('/quiz/upload-image', [AdminQuizController::class, 'uploadImage'])->name('quiz.upload-image');
+    Route::post('/quiz/copy-image', [AdminQuizController::class, 'copyImage'])->name('quiz.copy-image');
     Route::get('/quiz/{quiz}/edit', [AdminQuizController::class, 'edit'])->name('quiz.edit');
     Route::put('/quiz/{quiz}', [AdminQuizController::class, 'update'])->name('quiz.update');
     Route::delete('/quiz/{quiz}', [AdminQuizController::class, 'destroy'])->name('quiz.destroy');
@@ -39,6 +40,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     // Settings
     Route::get('/settings', [AdminSettingsController::class, 'index'])->name('settings');
     Route::post('/settings/prompts', [AdminSettingsController::class, 'updatePrompts'])->name('settings.prompts');
+    Route::post('/settings/cleanup-images', [AdminSettingsController::class, 'cleanupImages'])->name('settings.cleanup-images');
 });
 
 // Profile
