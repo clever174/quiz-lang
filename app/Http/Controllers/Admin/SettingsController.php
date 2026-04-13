@@ -24,8 +24,9 @@ class SettingsController extends Controller
     {
         $disk = Storage::disk('public');
 
-        $allFiles = collect($disk->files('quiz-images'))
-            ->merge($disk->files('match-images'));
+        $quizFiles  = $disk->directoryExists('quiz-images')  ? collect($disk->files('quiz-images'))  : collect();
+        $matchFiles = $disk->directoryExists('match-images') ? collect($disk->files('match-images')) : collect();
+        $allFiles   = $quizFiles->merge($matchFiles);
 
         $usedPaths = collect()
             ->merge(QuizQuestion::whereNotNull('image')->pluck('image'))
@@ -43,14 +44,20 @@ class SettingsController extends Controller
             ])
             ->values();
 
-        $storagePath = storage_path('app/public');
-        $total = disk_total_space($storagePath);
-        $free  = disk_free_space($storagePath);
+        // Calculate actual app storage usage (reliable on any hosting)
+        $storagePath = $disk->path('');
+        $usedBytes = 0;
+        if (is_dir($storagePath)) {
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($storagePath, \RecursiveDirectoryIterator::SKIP_DOTS)
+            );
+            foreach ($iterator as $file) {
+                if ($file->isFile()) $usedBytes += $file->getSize();
+            }
+        }
 
         return [
-            'total'   => $total,
-            'free'    => $free,
-            'used'    => $total - $free,
+            'used'    => $usedBytes,
             'orphans' => $orphans,
         ];
     }

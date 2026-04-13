@@ -34,10 +34,6 @@ function formatBytes(bytes) {
     return bytes + ' Б';
 }
 
-const usedPercent = computed(() =>
-    storage.value.total ? Math.round(storage.value.used / storage.value.total * 100) : 0
-);
-
 const orphansTotalSize = computed(() =>
     storage.value.orphans.reduce((sum, f) => sum + f.size, 0)
 );
@@ -94,20 +90,11 @@ const orphansTotalSize = computed(() =>
                 </div>
 
                 <!-- Disk usage -->
-                <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm mb-4">
-                    <div class="mb-3 flex justify-between text-sm text-gray-600">
-                        <span>{{ formatBytes(storage.used) }} занято</span>
-                        <span class="text-gray-400">{{ formatBytes(storage.free) }} свободно</span>
-                    </div>
-                    <div class="h-2 w-full overflow-hidden rounded-full bg-gray-100">
-                        <div
-                            class="h-full rounded-full transition-all"
-                            :class="usedPercent > 85 ? 'bg-red-400' : usedPercent > 60 ? 'bg-yellow-400' : 'bg-blue-400'"
-                            :style="{ width: usedPercent + '%' }"
-                        />
-                    </div>
-                    <div class="mt-2 text-right text-xs text-gray-400">
-                        {{ usedPercent }}% из {{ formatBytes(storage.total) }}
+                <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm mb-4 flex items-center gap-3">
+                    <i class="pi pi-database text-gray-400" />
+                    <div>
+                        <div class="text-sm font-medium text-gray-700">{{ formatBytes(storage.used) }}</div>
+                        <div class="text-xs text-gray-400">занято файлами приложения</div>
                     </div>
                 </div>
 
