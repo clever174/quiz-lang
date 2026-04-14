@@ -8,6 +8,8 @@ use App\Models\Quiz;
 use App\Models\QuizQuestion;
 use App\Models\QuizAnswer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -61,57 +63,59 @@ class QuizController extends Controller
             'questions.*.answers.*.is_correct' => 'boolean',
         ]);
 
-        $quiz->update([
-            'title' => $request->title,
-            'is_published' => $request->boolean('is_published'),
-        ]);
+        DB::transaction(function () use ($request, $quiz) {
+            $quiz->update([
+                'title' => $request->title,
+                'is_published' => $request->boolean('is_published'),
+            ]);
 
-        $keepQuestionIds = [];
+            $keepQuestionIds = [];
 
-        foreach ($request->questions ?? [] as $i => $qData) {
-            $question = isset($qData['id'])
-                ? QuizQuestion::find($qData['id'])
-                : new QuizQuestion(['quiz_id' => $quiz->id]);
+            foreach ($request->questions ?? [] as $i => $qData) {
+                $question = isset($qData['id'])
+                    ? (QuizQuestion::find($qData['id']) ?? new QuizQuestion(['quiz_id' => $quiz->id]))
+                    : new QuizQuestion(['quiz_id' => $quiz->id]);
 
-            $question->question_text = $qData['question_text'] ?? null;
-            $question->order = $i;
+                $question->quiz_id = $quiz->id;
+                $question->question_text = $qData['question_text'] ?? null;
+                $question->order = $i;
 
-            $newImagePath = $qData['image_path'] ?? null;
+                $newImagePath = $qData['image_path'] ?? null;
 
-            if ($newImagePath) {
-                // Новая или изменённая картинка
-                if ($question->image && $question->image !== $newImagePath) {
+                if ($newImagePath) {
+                    if ($question->image && $question->image !== $newImagePath) {
+                        Storage::disk('public')->delete($question->image);
+                    }
+                    $question->image = $newImagePath;
+                } elseif ($question->image) {
                     Storage::disk('public')->delete($question->image);
+                    $question->image = null;
                 }
-                $question->image = $newImagePath;
-            } elseif ($question->image) {
-                // Картинку убрали — удаляем файл и очищаем поле
-                Storage::disk('public')->delete($question->image);
-                $question->image = null;
+
+                $question->save();
+                $keepQuestionIds[] = $question->id;
+
+                $keepAnswerIds = [];
+                foreach ($qData['answers'] ?? [] as $j => $aData) {
+                    $answer = isset($aData['id'])
+                        ? (QuizAnswer::find($aData['id']) ?? new QuizAnswer(['question_id' => $question->id]))
+                        : new QuizAnswer(['question_id' => $question->id]);
+
+                    $answer->question_id = $question->id;
+                    $answer->text = $aData['text'];
+                    $answer->is_correct = (bool)($aData['is_correct'] ?? false);
+                    $answer->order = $j;
+                    $answer->save();
+                    $keepAnswerIds[] = $answer->id;
+                }
+
+                $question->answers()->whereNotIn('id', $keepAnswerIds)->delete();
             }
 
-            $question->save();
-            $keepQuestionIds[] = $question->id;
-
-            $keepAnswerIds = [];
-            foreach ($qData['answers'] ?? [] as $j => $aData) {
-                $answer = isset($aData['id'])
-                    ? QuizAnswer::find($aData['id'])
-                    : new QuizAnswer(['question_id' => $question->id]);
-
-                $answer->text = $aData['text'];
-                $answer->is_correct = (bool)($aData['is_correct'] ?? false);
-                $answer->order = $j;
-                $answer->save();
-                $keepAnswerIds[] = $answer->id;
-            }
-
-            $question->answers()->whereNotIn('id', $keepAnswerIds)->delete();
-        }
-
-        $quiz->questions()->whereNotIn('id', $keepQuestionIds)->each(function ($q) {
-            if ($q->image) Storage::disk('public')->delete($q->image);
-            $q->delete();
+            $quiz->questions()->whereNotIn('id', $keepQuestionIds)->each(function ($q) {
+                if ($q->image) Storage::disk('public')->delete($q->image);
+                $q->delete();
+            });
         });
 
         return back()->with('success', 'Квиз сохранён');
@@ -129,6 +133,30 @@ class QuizController extends Controller
             'url'  => Storage::disk('public')->url($path),
             'size' => $size,
         ]);
+    }
+
+    public function fetchImage(Request $request)
+    {
+        $request->validate(['url' => 'required|url|max:2048']);
+
+        try {
+            $response = Http::timeout(15)->get($request->url);
+
+            if (!$response->successful()) {
+                return response()->json(['error' => 'Не удалось загрузить картинку'], 422);
+            }
+
+            $path = $this->processImageFromString($response->body());
+            $size = Storage::disk('public')->size($path);
+
+            return response()->json([
+                'path' => $path,
+                'url'  => Storage::disk('public')->url($path),
+                'size' => $size,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Не удалось загрузить картинку'], 422);
+        }
     }
 
     public function copyImage(Request $request)
@@ -164,6 +192,21 @@ class QuizController extends Controller
         $quiz->delete();
 
         return redirect()->route('admin.quiz.index');
+    }
+
+    private function processImageFromString(string $contents): string
+    {
+        $manager = new ImageManager(new Driver());
+        $image = $manager->decode($contents);
+
+        if ($image->width() > 800) {
+            $image->scaleDown(width: 800);
+        }
+
+        $filename = 'quiz-images/' . \Illuminate\Support\Str::uuid() . '.webp';
+        Storage::disk('public')->put($filename, $image->encode(new WebpEncoder(quality: 80)));
+
+        return $filename;
     }
 
     private function processImage(\Illuminate\Http\UploadedFile $file): string

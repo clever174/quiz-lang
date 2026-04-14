@@ -25,6 +25,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::post('/quiz', [AdminQuizController::class, 'create'])->name('quiz.create');
     Route::post('/quiz/upload-image', [AdminQuizController::class, 'uploadImage'])->name('quiz.upload-image');
     Route::post('/quiz/copy-image', [AdminQuizController::class, 'copyImage'])->name('quiz.copy-image');
+    Route::post('/quiz/fetch-image', [AdminQuizController::class, 'fetchImage'])->name('quiz.fetch-image');
     Route::get('/quiz/{quiz}/edit', [AdminQuizController::class, 'edit'])->name('quiz.edit');
     Route::put('/quiz/{quiz}', [AdminQuizController::class, 'update'])->name('quiz.update');
     Route::delete('/quiz/{quiz}', [AdminQuizController::class, 'destroy'])->name('quiz.destroy');

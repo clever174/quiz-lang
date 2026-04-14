@@ -159,14 +159,27 @@ function removeImage(qIndex) {
     q.image_url_input = '';
 }
 
-function setImageFromUrl(qIndex) {
+async function setImageFromUrl(qIndex) {
     const q = questions.value[qIndex];
     const url = q.image_url_input.trim();
     if (!url) return;
-    q.image_path = url;
+
+    q.image_uploading = true;
     q.image_url = url;
-    q.image_size = null;
-    q.image_url_input = '';
+
+    try {
+        const { data } = await axios.post(route('admin.quiz.fetch-image'), { url });
+        q.image_path = data.path;
+        q.image_url = data.url;
+        q.image_size = data.size;
+        q.image_url_input = '';
+    } catch {
+        toast.add({ severity: 'error', summary: 'Не удалось загрузить картинку по ссылке', life: 3000 });
+        q.image_url = null;
+        q.image_path = null;
+    } finally {
+        q.image_uploading = false;
+    }
 }
 
 function formatSize(bytes) {
@@ -298,7 +311,7 @@ async function save() {
         <Head :title="`Квиз — ${quiz.title}`" />
         <Toast />
 
-        <div class="mb-6 flex items-center gap-4">
+<div class="mb-6 flex items-center gap-4">
             <Button icon="pi pi-arrow-left" severity="secondary" text @click="router.get(route('admin.quiz.index'))" />
             <h1 class="text-2xl font-bold text-gray-800">Редактор квиза</h1>
             <a :href="route('quiz.show', quiz.id)" target="_blank" class="text-gray-400 hover:text-blue-500 transition">
