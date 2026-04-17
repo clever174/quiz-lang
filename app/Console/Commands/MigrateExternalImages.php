@@ -19,6 +19,7 @@ class MigrateExternalImages extends Command
 
     public function handle(): int
     {
+        ini_set('memory_limit', '512M');
         $questions = QuizQuestion::where('image', 'like', 'http%')->get();
         $pairs = MatchPair::where('item_a_image', 'like', 'http%')
             ->orWhere('item_b_image', 'like', 'http%')
@@ -108,7 +109,10 @@ class MigrateExternalImages extends Command
             }
 
             $path = 'quiz-images/' . Str::uuid() . '.webp';
-            Storage::disk('public')->put($path, $image->encode(new WebpEncoder(quality: 80)));
+            $encoded = $image->encode(new WebpEncoder(quality: 80));
+            Storage::disk('public')->put($path, $encoded);
+
+            unset($image, $encoded);
 
             return [$path, true];
         } catch (\Exception) {
