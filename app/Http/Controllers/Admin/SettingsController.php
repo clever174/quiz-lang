@@ -3,9 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\MatchPair;
 use App\Models\Prompt;
-use App\Models\QuizQuestion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -23,30 +21,9 @@ class SettingsController extends Controller
     private function storageInfo(): array
     {
         $disk = Storage::disk('public');
-
-        $quizFiles  = $disk->directoryExists('quiz-images')  ? collect($disk->files('quiz-images'))  : collect();
-        $matchFiles = $disk->directoryExists('match-images') ? collect($disk->files('match-images')) : collect();
-        $allFiles   = $quizFiles->merge($matchFiles);
-
-        $usedPaths = collect()
-            ->merge(QuizQuestion::whereNotNull('image')->pluck('image'))
-            ->merge(MatchPair::whereNotNull('item_a_image')->pluck('item_a_image'))
-            ->merge(MatchPair::whereNotNull('item_b_image')->pluck('item_b_image'))
-            ->filter(fn($p) => !str_starts_with($p, 'http'))
-            ->unique();
-
-        $orphans = $allFiles
-            ->filter(fn($f) => !$usedPaths->contains($f))
-            ->map(fn($path) => [
-                'path' => $path,
-                'url'  => $disk->url($path),
-                'size' => $disk->size($path),
-            ])
-            ->values();
-
-        // Calculate actual app storage usage (reliable on any hosting)
         $storagePath = $disk->path('');
         $usedBytes = 0;
+
         if (is_dir($storagePath)) {
             $iterator = new \RecursiveIteratorIterator(
                 new \RecursiveDirectoryIterator($storagePath, \RecursiveDirectoryIterator::SKIP_DOTS)
@@ -56,35 +33,7 @@ class SettingsController extends Controller
             }
         }
 
-        return [
-            'used'    => $usedBytes,
-            'orphans' => $orphans,
-        ];
-    }
-
-    public function cleanupImages()
-    {
-        $disk = Storage::disk('public');
-
-        $allFiles = collect($disk->files('quiz-images'))
-            ->merge($disk->files('match-images'));
-
-        $usedPaths = collect()
-            ->merge(QuizQuestion::whereNotNull('image')->pluck('image'))
-            ->merge(MatchPair::whereNotNull('item_a_image')->pluck('item_a_image'))
-            ->merge(MatchPair::whereNotNull('item_b_image')->pluck('item_b_image'))
-            ->filter(fn($p) => !str_starts_with($p, 'http'))
-            ->unique();
-
-        $deleted = 0;
-        foreach ($allFiles as $file) {
-            if (!$usedPaths->contains($file)) {
-                $disk->delete($file);
-                $deleted++;
-            }
-        }
-
-        return response()->json(['deleted' => $deleted]);
+        return ['used' => $usedBytes];
     }
 
     public function updatePrompts(Request $request)

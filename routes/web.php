@@ -41,7 +41,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     // Settings
     Route::get('/settings', [AdminSettingsController::class, 'index'])->name('settings');
     Route::post('/settings/prompts', [AdminSettingsController::class, 'updatePrompts'])->name('settings.prompts');
-    Route::post('/settings/cleanup-images', [AdminSettingsController::class, 'cleanupImages'])->name('settings.cleanup-images');
 });
 
 // Profile

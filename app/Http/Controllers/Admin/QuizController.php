@@ -204,7 +204,10 @@ class QuizController extends Controller
         }
 
         $filename = 'quiz-images/' . \Illuminate\Support\Str::uuid() . '.webp';
-        Storage::disk('public')->put($filename, $image->encode(new WebpEncoder(quality: 80)));
+
+        if (!Storage::disk('public')->put($filename, $image->encode(new WebpEncoder(quality: 80)))) {
+            throw new \RuntimeException('Failed to write image to storage (disk may be full)');
+        }
 
         return $filename;
     }
@@ -221,7 +224,9 @@ class QuizController extends Controller
         $filename = 'quiz-images/' . \Illuminate\Support\Str::uuid() . '.webp';
         $encoded = $image->encode(new WebpEncoder(quality: 80));
 
-        Storage::disk('public')->put($filename, $encoded);
+        if (!Storage::disk('public')->put($filename, $encoded)) {
+            throw new \RuntimeException('Failed to write image to storage (disk may be full)');
+        }
 
         return $filename;
     }

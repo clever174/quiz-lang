@@ -150,7 +150,9 @@ class MatchController extends Controller
         $filename = 'match-images/' . \Illuminate\Support\Str::uuid() . '.webp';
         $encoded  = $image->encode(new WebpEncoder(quality: 80));
 
-        Storage::disk('public')->put($filename, $encoded);
+        if (!Storage::disk('public')->put($filename, $encoded)) {
+            throw new \RuntimeException('Failed to write image to storage (disk may be full)');
+        }
 
         return $filename;
     }
