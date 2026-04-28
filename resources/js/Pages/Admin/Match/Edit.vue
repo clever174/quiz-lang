@@ -107,7 +107,7 @@ async function onImageChange(pIndex, side, event) {
 
 function resolveUrl(path) {
     if (!path) return null;
-    return path.startsWith('http') ? path : `/storage/${path}`;
+    return path.startsWith('http') ? path : `/${path}`;
 }
 
 function removeImage(pIndex, side) {

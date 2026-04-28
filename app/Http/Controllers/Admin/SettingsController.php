@@ -20,7 +20,7 @@ class SettingsController extends Controller
 
     private function storageInfo(): array
     {
-        $disk = Storage::disk('public');
+        $disk = Storage::disk('images');
         $storagePath = $disk->path('');
         $usedBytes = 0;
 

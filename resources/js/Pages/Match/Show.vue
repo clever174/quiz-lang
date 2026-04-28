@@ -23,7 +23,7 @@ function changeMechanic(value) {
 
 function imgSrc(path) {
     if (!path) return null;
-    return path.startsWith('http') ? path : `/storage/${path}`;
+    return path.startsWith('http') ? path : `/${path}`;
 }
 
 function shuffle(arr) {

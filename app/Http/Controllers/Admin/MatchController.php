@@ -75,11 +75,11 @@ class MatchController extends Controller
             $newImageA = $pData['item_a_image'] ?? null;
             if ($newImageA) {
                 if ($pair->item_a_image && $pair->item_a_image !== $newImageA) {
-                    Storage::disk('public')->delete($pair->item_a_image);
+                    Storage::disk('images')->delete($pair->item_a_image);
                 }
                 $pair->item_a_image = $newImageA;
             } elseif ($pair->item_a_image) {
-                Storage::disk('public')->delete($pair->item_a_image);
+                Storage::disk('images')->delete($pair->item_a_image);
                 $pair->item_a_image = null;
             }
 
@@ -87,11 +87,11 @@ class MatchController extends Controller
             $newImageB = $pData['item_b_image'] ?? null;
             if ($newImageB) {
                 if ($pair->item_b_image && $pair->item_b_image !== $newImageB) {
-                    Storage::disk('public')->delete($pair->item_b_image);
+                    Storage::disk('images')->delete($pair->item_b_image);
                 }
                 $pair->item_b_image = $newImageB;
             } elseif ($pair->item_b_image) {
-                Storage::disk('public')->delete($pair->item_b_image);
+                Storage::disk('images')->delete($pair->item_b_image);
                 $pair->item_b_image = null;
             }
 
@@ -104,8 +104,8 @@ class MatchController extends Controller
         }
 
         $match->pairs()->whereNotIn('id', $keepIds)->each(function ($p) {
-            if ($p->item_a_image) Storage::disk('public')->delete($p->item_a_image);
-            if ($p->item_b_image) Storage::disk('public')->delete($p->item_b_image);
+            if ($p->item_a_image) Storage::disk('images')->delete($p->item_a_image);
+            if ($p->item_b_image) Storage::disk('images')->delete($p->item_b_image);
             $p->delete();
         });
 
@@ -117,11 +117,11 @@ class MatchController extends Controller
         $request->validate(['image' => 'required|image|max:10240']);
 
         $path = $this->processImage($request->file('image'));
-        $size = Storage::disk('public')->size($path);
+        $size = Storage::disk('images')->size($path);
 
         return response()->json([
             'path' => $path,
-            'url'  => Storage::disk('public')->url($path),
+            'url'  => Storage::disk('images')->url($path),
             'size' => $size,
         ]);
     }
@@ -129,8 +129,8 @@ class MatchController extends Controller
     public function destroy(MatchGame $match)
     {
         $match->pairs->each(function ($p) {
-            if ($p->item_a_image) Storage::disk('public')->delete($p->item_a_image);
-            if ($p->item_b_image) Storage::disk('public')->delete($p->item_b_image);
+            if ($p->item_a_image) Storage::disk('images')->delete($p->item_a_image);
+            if ($p->item_b_image) Storage::disk('images')->delete($p->item_b_image);
         });
 
         $match->delete();
@@ -150,7 +150,7 @@ class MatchController extends Controller
         $filename = 'match-images/' . \Illuminate\Support\Str::uuid() . '.webp';
         $encoded  = $image->encode(new WebpEncoder(quality: 80));
 
-        if (!Storage::disk('public')->put($filename, $encoded)) {
+        if (!Storage::disk('images')->put($filename, $encoded)) {
             throw new \RuntimeException('Failed to write image to storage (disk may be full)');
         }
 

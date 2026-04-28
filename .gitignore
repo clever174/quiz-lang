@@ -18,6 +18,10 @@
 /public/storage
 /public/exports/*
 !/public/exports/.gitkeep
+/public/quiz-images/*
+!/public/quiz-images/.gitkeep
+/public/match-images/*
+!/public/match-images/.gitkeep
 /storage/*.key
 /storage/pail
 /vendor

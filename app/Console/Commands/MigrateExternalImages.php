@@ -110,7 +110,7 @@ class MigrateExternalImages extends Command
 
             $path = 'quiz-images/' . Str::uuid() . '.webp';
             $encoded = $image->encode(new WebpEncoder(quality: 80));
-            Storage::disk('public')->put($path, $encoded);
+            Storage::disk('images')->put($path, $encoded);
 
             unset($image, $encoded);
 

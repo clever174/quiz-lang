@@ -47,7 +47,7 @@ function copyFallback() {
 const isPublished = ref(props.quiz.is_published);
 function resolveUrl(path) {
     if (!path) return null;
-    return path.startsWith('http') ? path : `/storage/${path}`;
+    return path.startsWith('http') ? path : `/${path}`;
 }
 
 const questions = ref(

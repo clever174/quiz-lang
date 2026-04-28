@@ -84,11 +84,11 @@ class QuizController extends Controller
 
                 if ($newImagePath) {
                     if ($question->image && $question->image !== $newImagePath) {
-                        Storage::disk('public')->delete($question->image);
+                        Storage::disk('images')->delete($question->image);
                     }
                     $question->image = $newImagePath;
                 } elseif ($question->image) {
-                    Storage::disk('public')->delete($question->image);
+                    Storage::disk('images')->delete($question->image);
                     $question->image = null;
                 }
 
@@ -113,7 +113,7 @@ class QuizController extends Controller
             }
 
             $quiz->questions()->whereNotIn('id', $keepQuestionIds)->each(function ($q) {
-                if ($q->image) Storage::disk('public')->delete($q->image);
+                if ($q->image) Storage::disk('images')->delete($q->image);
                 $q->delete();
             });
         });
@@ -126,11 +126,11 @@ class QuizController extends Controller
         $request->validate(['image' => 'required|image|max:10240']);
 
         $path = $this->processImage($request->file('image'));
-        $size = Storage::disk('public')->size($path);
+        $size = Storage::disk('images')->size($path);
 
         return response()->json([
             'path' => $path,
-            'url'  => Storage::disk('public')->url($path),
+            'url'  => Storage::disk('images')->url($path),
             'size' => $size,
         ]);
     }
@@ -147,11 +147,11 @@ class QuizController extends Controller
             }
 
             $path = $this->processImageFromString($response->body());
-            $size = Storage::disk('public')->size($path);
+            $size = Storage::disk('images')->size($path);
 
             return response()->json([
                 'path' => $path,
-                'url'  => Storage::disk('public')->url($path),
+                'url'  => Storage::disk('images')->url($path),
                 'size' => $size,
             ]);
         } catch (\Exception $e) {
@@ -167,18 +167,18 @@ class QuizController extends Controller
             return response()->json(['path' => $path, 'url' => $path, 'size' => null]);
         }
 
-        if (!Storage::disk('public')->exists($path)) {
+        if (!Storage::disk('images')->exists($path)) {
             abort(404);
         }
 
         $ext = pathinfo($path, PATHINFO_EXTENSION);
         $newPath = 'quiz-images/' . \Illuminate\Support\Str::uuid() . '.' . $ext;
-        Storage::disk('public')->copy($path, $newPath);
-        $size = Storage::disk('public')->size($newPath);
+        Storage::disk('images')->copy($path, $newPath);
+        $size = Storage::disk('images')->size($newPath);
 
         return response()->json([
             'path' => $newPath,
-            'url'  => Storage::disk('public')->url($newPath),
+            'url'  => Storage::disk('images')->url($newPath),
             'size' => $size,
         ]);
     }
@@ -186,7 +186,7 @@ class QuizController extends Controller
     public function destroy(Quiz $quiz)
     {
         $quiz->questions->each(function ($q) {
-            if ($q->image) Storage::disk('public')->delete($q->image);
+            if ($q->image) Storage::disk('images')->delete($q->image);
         });
 
         $quiz->delete();
@@ -205,7 +205,7 @@ class QuizController extends Controller
 
         $filename = 'quiz-images/' . \Illuminate\Support\Str::uuid() . '.webp';
 
-        if (!Storage::disk('public')->put($filename, $image->encode(new WebpEncoder(quality: 80)))) {
+        if (!Storage::disk('images')->put($filename, $image->encode(new WebpEncoder(quality: 80)))) {
             throw new \RuntimeException('Failed to write image to storage (disk may be full)');
         }
 
@@ -224,7 +224,7 @@ class QuizController extends Controller
         $filename = 'quiz-images/' . \Illuminate\Support\Str::uuid() . '.webp';
         $encoded = $image->encode(new WebpEncoder(quality: 80));
 
-        if (!Storage::disk('public')->put($filename, $encoded)) {
+        if (!Storage::disk('images')->put($filename, $encoded)) {
             throw new \RuntimeException('Failed to write image to storage (disk may be full)');
         }
 
