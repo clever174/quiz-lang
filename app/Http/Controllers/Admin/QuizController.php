@@ -8,9 +8,11 @@ use App\Models\Quiz;
 use App\Models\QuizQuestion;
 use App\Models\QuizAnswer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\Encoders\WebpEncoder;
@@ -119,6 +121,67 @@ class QuizController extends Controller
         });
 
         return back()->with('success', 'Квиз сохранён');
+    }
+
+    public function generateQuestions(Request $request)
+    {
+        $request->validate(['prompt' => 'required|string|max:10000']);
+
+        try {
+            $token = Cache::remember('gigachat_token', 1680, function () {
+                $response = Http::withoutVerifying()
+                    ->withHeaders([
+                        'Authorization' => 'Basic ' . config('services.gigachat.auth_key'),
+                        'RqUID' => (string) Str::uuid(),
+                        'Content-Type' => 'application/x-www-form-urlencoded',
+                    ])
+                    ->asForm()
+                    ->post('https://ngw.devices.sberbank.ru:9443/api/v2/oauth', [
+                        'scope' => 'GIGACHAT_API_PERS',
+                    ]);
+
+                if (!$response->successful()) {
+                    throw new \RuntimeException('GigaChat auth failed: ' . $response->status());
+                }
+
+                return $response->json('access_token');
+            });
+
+            $chat = Http::withoutVerifying()
+                ->withToken($token)
+                ->post('https://gigachat.devices.sberbank.ru/api/v1/chat/completions', [
+                    'model' => 'GigaChat',
+                    'messages' => [
+                        ['role' => 'user', 'content' => $request->prompt],
+                    ],
+                ]);
+
+            if (!$chat->successful()) {
+                Cache::forget('gigachat_token');
+                return response()->json(['error' => 'Ошибка запроса к GigaChat'], 422);
+            }
+
+            $content = $chat->json('choices.0.message.content') ?? '';
+
+            // Extract JSON array from response (may be wrapped in markdown code block)
+            if (preg_match('/```(?:json)?\s*(\[.*?\])\s*```/s', $content, $m)) {
+                $json = $m[1];
+            } elseif (preg_match('/(\[.*\])/s', $content, $m)) {
+                $json = $m[1];
+            } else {
+                return response()->json(['error' => 'Не удалось найти JSON в ответе'], 422);
+            }
+
+            $questions = json_decode($json, true);
+            if (!is_array($questions) || empty($questions)) {
+                return response()->json(['error' => 'Неверный формат JSON в ответе'], 422);
+            }
+
+            return response()->json(['questions' => $questions]);
+        } catch (\Exception $e) {
+            Cache::forget('gigachat_token');
+            return response()->json(['error' => 'Ошибка: ' . $e->getMessage()], 422);
+        }
     }
 
     public function uploadImage(Request $request)

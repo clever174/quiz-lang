@@ -23,6 +23,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     // Quiz
     Route::get('/quiz', [AdminQuizController::class, 'index'])->name('quiz.index');
     Route::post('/quiz', [AdminQuizController::class, 'create'])->name('quiz.create');
+    Route::post('/quiz/generate-questions', [AdminQuizController::class, 'generateQuestions'])->name('quiz.generate-questions');
     Route::post('/quiz/upload-image', [AdminQuizController::class, 'uploadImage'])->name('quiz.upload-image');
     Route::post('/quiz/copy-image', [AdminQuizController::class, 'copyImage'])->name('quiz.copy-image');
     Route::post('/quiz/fetch-image', [AdminQuizController::class, 'fetchImage'])->name('quiz.fetch-image');

@@ -191,6 +191,25 @@ function formatSize(bytes) {
 const jsonText = ref('');
 const showJsonInput = ref(false);
 
+const gigaLoading = ref(false);
+const gigaConfirm = ref(false);
+
+async function generateWithGigaChat() {
+    gigaConfirm.value = false;
+    gigaLoading.value = true;
+    try {
+        const { data } = await axios.post(route('admin.quiz.generate-questions'), {
+            prompt: promptText.value,
+        });
+        parseAndImport(JSON.stringify(data.questions), 'Ошибка разбора ответа GigaChat');
+    } catch (e) {
+        const msg = e.response?.data?.error ?? 'Ошибка запроса к GigaChat';
+        toast.add({ severity: 'error', summary: msg, life: 4000 });
+    } finally {
+        gigaLoading.value = false;
+    }
+}
+
 function parseAndImport(jsonString, errorLabel = 'Ошибка') {
     try {
         const data = JSON.parse(jsonString);
@@ -376,6 +395,35 @@ async function save() {
                         Введите ваш запрос, скопируйте промпт и вставьте в ChatGPT / Claude / любую другую нейросеть.
                         Полученный JSON загрузите кнопкой «Вставить JSON».
                     </p>
+
+                    <!-- GigaChat button -->
+                    <div class="mb-4">
+                        <div v-if="!gigaConfirm">
+                            <button
+                                :disabled="gigaLoading"
+                                class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
+                                @click="gigaConfirm = true"
+                            >
+                                <i class="pi" :class="gigaLoading ? 'pi-spin pi-spinner' : 'pi-send'" />
+                                {{ gigaLoading ? 'Генерируем...' : 'Сгенерировать через GigaChat' }}
+                            </button>
+                        </div>
+                        <div v-else class="flex items-center gap-3 rounded-lg bg-blue-50 px-4 py-3">
+                            <span class="text-sm text-blue-700">Отправить промпт в GigaChat?</span>
+                            <button
+                                class="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+                                @click="generateWithGigaChat"
+                            >
+                                Да, отправить
+                            </button>
+                            <button
+                                class="text-sm text-gray-500 hover:text-gray-700"
+                                @click="gigaConfirm = false"
+                            >
+                                Отмена
+                            </button>
+                        </div>
+                    </div>
 
                     <div class="mb-3">
                         <label class="mb-1 block text-xs font-medium text-blue-700">Ваш запрос для нейросети</label>
