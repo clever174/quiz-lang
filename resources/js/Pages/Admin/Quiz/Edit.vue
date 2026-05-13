@@ -161,7 +161,7 @@ function removeImage(qIndex) {
 
 async function setImageFromUrl(qIndex) {
     const q = questions.value[qIndex];
-    const url = q.image_url_input.trim();
+    const url = (q.image_url_input ?? '').trim();
     if (!url) return;
 
     q.image_uploading = true;
@@ -193,6 +193,13 @@ const showJsonInput = ref(false);
 
 const gigaLoading = ref(false);
 const gigaConfirm = ref(false);
+const gigaModel = ref('GigaChat-Max');
+
+const gigaModels = [
+    { label: 'Max', value: 'GigaChat-Max' },
+    { label: 'Pro', value: 'GigaChat-Pro' },
+    { label: 'Lite', value: 'GigaChat' },
+];
 
 async function generateWithGigaChat() {
     gigaConfirm.value = false;
@@ -200,6 +207,7 @@ async function generateWithGigaChat() {
     try {
         const { data } = await axios.post(route('admin.quiz.generate-questions'), {
             prompt: promptText.value,
+            model: gigaModel.value,
         });
         parseAndImport(JSON.stringify(data.questions), 'Ошибка разбора ответа GigaChat');
     } catch (e) {
@@ -243,6 +251,7 @@ function parseAndImport(jsonString, errorLabel = 'Ошибка') {
                 image_file: null,
                 image_size: null,
                 image_uploading: false,
+                image_url_input: '',
                 answers,
             });
             added++;
@@ -398,7 +407,13 @@ async function save() {
 
                     <!-- GigaChat button -->
                     <div class="mb-4">
-                        <div v-if="!gigaConfirm">
+                        <div v-if="!gigaConfirm" class="flex items-center gap-2">
+                            <select
+                                v-model="gigaModel"
+                                class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-blue-400 focus:outline-none"
+                            >
+                                <option v-for="m in gigaModels" :key="m.value" :value="m.value">{{ m.label }}</option>
+                            </select>
                             <button
                                 :disabled="gigaLoading"
                                 class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"

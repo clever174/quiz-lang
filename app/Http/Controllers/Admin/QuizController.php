@@ -125,7 +125,12 @@ class QuizController extends Controller
 
     public function generateQuestions(Request $request)
     {
-        $request->validate(['prompt' => 'required|string|max:10000']);
+        $request->validate([
+            'prompt' => 'required|string|max:10000',
+            'model' => 'sometimes|string|in:GigaChat,GigaChat-Pro,GigaChat-Max',
+        ]);
+
+        $model = $request->input('model', 'GigaChat-Max');
 
         try {
             $token = Cache::remember('gigachat_token', 1680, function () {
@@ -150,7 +155,7 @@ class QuizController extends Controller
             $chat = Http::withoutVerifying()
                 ->withToken($token)
                 ->post('https://gigachat.devices.sberbank.ru/api/v1/chat/completions', [
-                    'model' => 'GigaChat',
+                    'model' => $model,
                     'messages' => [
                         ['role' => 'user', 'content' => $request->prompt],
                     ],
@@ -163,18 +168,29 @@ class QuizController extends Controller
 
             $content = $chat->json('choices.0.message.content') ?? '';
 
+            \Illuminate\Support\Facades\Log::info('GigaChat response', ['content' => $content]);
+
             // Extract JSON array from response (may be wrapped in markdown code block)
-            if (preg_match('/```(?:json)?\s*(\[.*?\])\s*```/s', $content, $m)) {
+            if (preg_match('/```(?:json)?\s*(\[.*\])\s*```/s', $content, $m)) {
                 $json = $m[1];
             } elseif (preg_match('/(\[.*\])/s', $content, $m)) {
                 $json = $m[1];
             } else {
-                return response()->json(['error' => 'Не удалось найти JSON в ответе'], 422);
+                return response()->json([
+                    'error' => 'Не удалось найти JSON в ответе',
+                    'raw' => $content,
+                ], 422);
             }
+
+            // Remove trailing commas that GigaChat sometimes adds (invalid JSON)
+            $json = preg_replace('/,\s*([\]}])/s', '$1', $json);
 
             $questions = json_decode($json, true);
             if (!is_array($questions) || empty($questions)) {
-                return response()->json(['error' => 'Неверный формат JSON в ответе'], 422);
+                return response()->json([
+                    'error' => 'Неверный формат JSON в ответе',
+                    'raw' => $content,
+                ], 422);
             }
 
             return response()->json(['questions' => $questions]);
